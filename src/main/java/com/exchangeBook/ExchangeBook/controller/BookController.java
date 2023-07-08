@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.exchangeBook.ExchangeBook.service.BookService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,19 +21,28 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @PostMapping("/add1")
-    public String add(@ModelAttribute("formData") Book book){
-        bookService.saveBook(book);
-        return "Success";
-    }
+
     @PostMapping("/add")
-    public ResponseEntity<Boolean> add(@ModelAttribute BookBase bookBase) {
+    public ResponseEntity<Boolean> post(@ModelAttribute BookBase bookBase) {
         //User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UUID id = UUID.randomUUID();
-       // bookService.saveBook(new Book());
         boolean result = bookService.postBook(id, bookBase);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/getAllBook")
+
+    public List<Book> getAllBooks() {
+        return bookService.getAllBooks();
+    }
+   /* public ResponseEntity<List<Book>> searchProducts(){
+        List<Book> books = bookService.getAllBooks();
+        return ResponseEntity.ok(new ArrayList<>());
+    }*/
+
+   /* @GetMapping("/{id}")
+    public Book getBookByID(@PathVariable UUID id){
+        return bookService.getBookByID(id);
+    }*/
 
 }
