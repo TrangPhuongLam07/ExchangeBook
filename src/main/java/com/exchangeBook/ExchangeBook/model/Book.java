@@ -1,5 +1,6 @@
 package com.exchangeBook.ExchangeBook.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,10 +30,12 @@ public class Book implements Serializable {
     private Date createdDate;
     private String description;
     private boolean isExchange;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id")
     private User owner;
+
     @OneToMany(mappedBy = "book")
+    @JsonIgnore
     private Set<BookImage> bookImages;
 
 

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -69,5 +70,16 @@ public class BookServiceImpl implements BookService {
             bookImageRepository.save(bookImage);
         }
     }
-//
+
+    //Get All book functions
+    @Override
+    public List<Book> getAllBooks() {
+        List<Book> books =bookRepository.findAll();
+        return books;
+    }
+
+    @Override
+    public Optional<Book> getBookByID(UUID id) {
+        return bookRepository.findById(id);
+    }
 }
