@@ -14,4 +14,6 @@ public boolean postBook(UUID userId, BookBase bookBase);
     List<Book> getAllBooks();
 
     Optional<Book> getBookByID(UUID id);
+
+    List<BookBase> getAll();
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/book")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class BookController {
 
     @Autowired
@@ -32,8 +32,18 @@ public class BookController {
 
     @GetMapping("/getAllBook")
 
-    public List<Book> getAllBooks() {
+    /*public List<Book> getAllBooks() {
         return bookService.getAllBooks();
+    }*/
+    public ResponseEntity<List<BookBase>> getAll(){
+        List<BookBase> bookBases = bookService.getAll();
+        return new ResponseEntity<>(bookBases, HttpStatus.OK);
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Book>> getAllBooks() {
+        List<Book> books = bookService.getAllBooks();
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
    /* public ResponseEntity<List<Book>> searchProducts(){
         List<Book> books = bookService.getAllBooks();

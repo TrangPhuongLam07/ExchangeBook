@@ -34,7 +34,6 @@ public class BookServiceImpl implements BookService {
     @Override
     public boolean postBook(UUID userId, BookBase bookBase) {
         Book book = new Book();
-        UUID id = UUID.randomUUID();
         // var user = userRepository.findById(userId);
         if (bookBase != null) {
             //book.setId(id);
@@ -81,5 +80,12 @@ public class BookServiceImpl implements BookService {
     @Override
     public Optional<Book> getBookByID(UUID id) {
         return bookRepository.findById(id);
+    }
+
+    @Override
+    public List<BookBase> getAll() {
+        List<Book> books = bookRepository.findAll();
+        List<BookBase> bookBases = BookBase.toListBook(books);
+        return bookBases;
     }
 }

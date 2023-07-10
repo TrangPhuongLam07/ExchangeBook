@@ -29,7 +29,7 @@ public class ExchangeBookApplication implements CommandLineRunner{
 	//Test get all books, findAll()
 	@Override
 	public void run(String... args) throws Exception {
-		Book book = new Book();
+		/*Book book = new Book();
 		book.setName("book 1");
 		book.setAuthor("Logan");
 		book.setDescription("book 1 desc");
@@ -45,6 +45,6 @@ public class ExchangeBookApplication implements CommandLineRunner{
 		List<Book> products = bookRepository.findAll();
 		products.forEach((p) -> {
 			System.out.println(p.getName());
-		});
+		});*/
 	}
 }
