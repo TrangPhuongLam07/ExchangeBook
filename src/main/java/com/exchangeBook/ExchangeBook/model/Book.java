@@ -1,11 +1,15 @@
 package com.exchangeBook.ExchangeBook.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,13 +25,17 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Book implements Serializable {
     @Serial
-    private static final long serialVersionUID = 8908189063856649397L;
+    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue
-    private UUID id;
+     /*Id lưu vào database là String
+    vì uuid khi lưu vào database sẽ không đúng định dạng UUID*/
+    @Column(columnDefinition = "VARCHAR(36)")
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private UUID id = UUID.randomUUID();
     private String name;
     private String author;
-    private Date createdDate;
+   /* @JsonFormat(pattern = "yyy-MM-dd", shape = JsonFormat.Shape.STRING)*/
+    private Date createdDate = new Date(System.currentTimeMillis());
     private String description;
     private boolean isExchange;
     @ManyToOne(fetch = FetchType.EAGER)

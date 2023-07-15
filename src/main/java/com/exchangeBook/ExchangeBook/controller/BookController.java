@@ -31,20 +31,23 @@ public class BookController {
     }
 
     @GetMapping("/getAllBook")
-
-    /*public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
-    }*/
     public ResponseEntity<List<BookBase>> getAll(){
         List<BookBase> bookBases = bookService.getAll();
         return new ResponseEntity<>(bookBases, HttpStatus.OK);
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> books = bookService.getAllBooks();
-        return new ResponseEntity<>(books, HttpStatus.OK);
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<BookBase> getBookByID(@PathVariable("id") UUID id) {
+        BookBase bookBase = bookService.getBookByID(id);
+        return new ResponseEntity<>(bookBase, HttpStatus.OK);
     }
+    /*public UUID testMethod(@PathVariable("id") String id){
+      // BookBase bookBase = bookService.getBookByID(id);
+        String bookId = "e2773c4d-f12a-4319-989f-cf8fa4683307";
+        return UUID.fromString(bookId);
+    }*/
+
    /* public ResponseEntity<List<Book>> searchProducts(){
         List<Book> books = bookService.getAllBooks();
         return ResponseEntity.ok(new ArrayList<>());

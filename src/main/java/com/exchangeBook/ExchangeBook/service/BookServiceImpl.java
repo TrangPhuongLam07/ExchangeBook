@@ -36,7 +36,7 @@ public class BookServiceImpl implements BookService {
         Book book = new Book();
         // var user = userRepository.findById(userId);
         if (bookBase != null) {
-            //book.setId(id);
+            book.setId(UUID.randomUUID());
             book.setCreatedDate(new Date(System.currentTimeMillis()));
             book.setAuthor(bookBase.getAuthor());
             book.setDescription(bookBase.getDescription());
@@ -52,11 +52,11 @@ public class BookServiceImpl implements BookService {
         return false;
     }
 
-    private void addImageBook(UUID bookId, List<MultipartFile> productImage) {
+    private boolean addImageBook(UUID bookId, List<MultipartFile> productImage) {
         //find book owner
         Book product = bookRepository.findById(bookId).get();
-        if (productImage == null) {
-            return;
+        if (productImage == null | product == null) {
+            return false;
         }
         //create book images
         for (MultipartFile file : productImage) {
@@ -65,9 +65,10 @@ public class BookServiceImpl implements BookService {
             bookImage.setBook(product);
             bookImage.setImage(path);
             bookImage.setCreatedDate(new Date(System.currentTimeMillis()));
-            //bookImage.setId(UUID.randomUUID());
+            bookImage.setId(UUID.randomUUID());
             bookImageRepository.save(bookImage);
         }
+        return true;
     }
 
     //Get All book functions
@@ -78,8 +79,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Book> getBookByID(UUID id) {
-        return bookRepository.findById(id);
+    public BookBase getBookByID(UUID id) {
+        Optional<Book> book = bookRepository.findById(id);
+        if (!book.isPresent()){
+            return null;
+        }
+        BookBase bookBase = BookBase.toBook(book.get());
+        return bookBase;
     }
 
     @Override
