@@ -5,8 +5,9 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.exchangeBook.ExchangeBook.entity.User;
+import com.exchangeBook.ExchangeBook.entity.Post;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>{
+
 }
