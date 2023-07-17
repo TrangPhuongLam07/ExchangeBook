@@ -11,22 +11,22 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
 
-@Entity
-@Table(name = "book_images")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class BookImage implements Serializable {
-    @Serial
-    private static final long serialVersionUID = -4947877913705464629L;
-    @Id
-    @GeneratedValue
-    private UUID id;
-    private Date createdDate;
-    private String image;
-    @ManyToOne
-    @JoinColumn(name="book_id")
-    private Book book;
-
-}
+//@Entity
+//@Table(name = "book_images")
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
+//public class BookImage implements Serializable {
+//    @Serial
+//    private static final long serialVersionUID = -4947877913705464629L;
+//    @Id
+//    @GeneratedValue
+//    private UUID id;
+//    private Date createdDate;
+//    private String image;
+//    @ManyToOne
+//    @JoinColumn(name="book_id")
+//    private Book book;
+//
+//}

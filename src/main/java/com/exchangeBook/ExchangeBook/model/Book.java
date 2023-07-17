@@ -13,30 +13,30 @@ import java.sql.Date;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity
-@Table(name = "books")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Book implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 8908189063856649397L;
-    @Id
-    @GeneratedValue
-    private UUID id;
-    private String name;
-    private String author;
-    private Date createdDate;
-    private String description;
-    private boolean isExchange;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id")
-    private User owner;
-
-    @OneToMany(mappedBy = "book")
-    @JsonIgnore
-    private Set<BookImage> bookImages;
-
-
-}
+//@Entity
+//@Table(name = "books")
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
+//public class Book implements Serializable {
+//    @Serial
+//    private static final long serialVersionUID = 8908189063856649397L;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.UUID)
+//    private UUID id;
+//    private String name;
+//    private String author;
+//    private Date createdDate;
+//    private String description;
+//    private boolean isExchange;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name="user_id")
+//    private User owner;
+//
+//    @OneToMany(mappedBy = "book")
+//    @JsonIgnore
+//    private Set<BookImage> bookImages;
+//
+//
+//}
