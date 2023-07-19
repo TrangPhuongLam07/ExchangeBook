@@ -7,6 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +35,7 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	CategoryRepository categoryRepository;
-	
+
 	@Autowired
 	ImageService imageService;
 
@@ -40,9 +45,9 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public PostDto createNewPost(PostDto postDto, MultipartFile[] images) {
 		Category category = categoryRepository.findById(postDto.getCategory()).get();
-		
+
 		Set<Image> imageList = imageService.uploadMultiImage(images);
-		
+
 		String strMaxDatetime = "9999-12-31 23:59:59.999999";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 		LocalDateTime maxDateTime = LocalDateTime.parse(strMaxDatetime, formatter);
@@ -63,15 +68,19 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public List<PostDto> getAllPosts() {
-		return postRepository.findAll().stream().map(post -> postMapper.toPostDto(post)).collect(Collectors.toList());
+	public List<PostDto> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec) {
+		Pageable paging = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, sortBy));
+		Page<Post> paged = postRepository.findAll(spec, paging);
+		
+		return paged.getContent().stream().map(post -> postMapper.toPostDto(post))
+				.collect(Collectors.toList());
 
 	}
 
 	@Override
 	public PostResponse getOnePost(Long id) {
 		Post post = postRepository.findById(id).get();
-			
+
 		PostResponse postResponse = postMapper.toPostResponse(post);
 		return postResponse;
 	}
