@@ -1,10 +1,9 @@
 package com.exchangeBook.ExchangeBook.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.dto.PostDto;
+import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.service.PostService;
+
+import jakarta.transaction.Transactional;
+import net.kaczmarzyk.spring.data.jpa.domain.Equal;
+import net.kaczmarzyk.spring.data.jpa.domain.Like;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Or;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -42,14 +49,38 @@ public class PostController {
 	}
 
 	/**
-	 * @route GET /posts
+	 * @route GET /posts?page=1&size=10&sort=dateCreated&title=post&author&status=APPROVED&category=mystery
 	 * @description Get all posts
 	 * @body
 	 * @access
 	 */
+	@Transactional
 	@GetMapping
-	public ResponseEntity<?> getAllPosts() {
-		List<PostDto> dto = postService.getAllPosts();
+	public ResponseEntity<?> getAllPosts(@RequestParam(defaultValue = "1") Integer page,
+			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort,
+			@And({ @Spec(path = "title", params = "title", spec = Like.class),
+					@Spec(path = "author", params = "author", spec = Like.class),
+					@Spec(path = "status", params = "status", spec = Equal.class),
+					@Spec(path = "category.name", params = "category", spec = Like.class) }) Specification<Post> postSpec) {
+		List<PostDto> dto = postService.getAllPosts(page, size, sort, postSpec);
+		return ResponseEntity.ok().body(dto);
+	}
+
+	/**
+	 * @route GET /posts/search?page=1&size=10&sort=dateCreated&keyword=post
+	 * @description Search in posts when the given keyword match {title, author, description, category.name}
+	 * @body
+	 * @access
+	 */
+	@Transactional
+	@GetMapping("/search")
+	public ResponseEntity<?> searchInPosts(@RequestParam(defaultValue = "1") Integer page,
+			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sortBy,
+			@Or({ @Spec(path = "title", params = "keyword", spec = Like.class),
+					@Spec(path = "author", params = "keyword", spec = Like.class),
+					@Spec(path = "description", params = "keyword", spec = Like.class),
+					@Spec(path = "category.name", params = "keyword", spec = Like.class) }) Specification<Post> postSpec) {
+		List<PostDto> dto = postService.getAllPosts(page, size, sortBy, postSpec);
 		return ResponseEntity.ok().body(dto);
 	}
 
@@ -78,7 +109,7 @@ public class PostController {
 	}
 
 	/**
-	 * @route DELETE /posts:id
+	 * @route DELETE /posts/:id
 	 * @description Hide a post
 	 * @body
 	 * @access Login required
