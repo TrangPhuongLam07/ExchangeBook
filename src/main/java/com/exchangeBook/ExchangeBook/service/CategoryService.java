@@ -6,7 +6,7 @@ import com.exchangeBook.ExchangeBook.dto.CategoryDto;
 
 public interface CategoryService {
 
-	CategoryDto createNewCategory(CategoryDto categoryDto);
+	CategoryDto createNewCategory(String name);
 
 	List<CategoryDto> getAllCategories();
 

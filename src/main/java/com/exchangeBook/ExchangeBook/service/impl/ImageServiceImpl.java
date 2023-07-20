@@ -3,6 +3,7 @@ package com.exchangeBook.ExchangeBook.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -28,9 +29,9 @@ public class ImageServiceImpl implements ImageService {
 
 	@Override
 	public Image uploadImage(MultipartFile file) {
-		String filePath = uploadDir + file.getOriginalFilename();
-		Image image = imageRepository.save(
-				Image.builder().name(file.getOriginalFilename()).type(file.getContentType()).size(file.getSize()).path(filePath).build());
+		String filePath = uploadDir + new Date().getTime()+"_" + file.getOriginalFilename();
+		Image image = imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
+				.size(file.getSize()).path(filePath).build());
 		try {
 			file.transferTo(new File(filePath));
 		} catch (IllegalStateException e) {

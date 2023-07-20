@@ -22,9 +22,9 @@ public class CategoryServiceImpl implements CategoryService {
 	CategoryRepository categoryRepository;
 
 	@Override
-	public CategoryDto createNewCategory(CategoryDto categoryDto) {
+	public CategoryDto createNewCategory(String name) {
 		Category category = new Category();
-		category.setName(categoryDto.getName());
+		category.setName(name);
 
 		categoryRepository.save(category);
 

@@ -30,8 +30,8 @@ public class CategoryController {
 	 * @access Login required
 	 */
 	@PostMapping
-	public ResponseEntity<?> createNewCategory(@RequestBody CategoryDto categoryDto) {
-		CategoryDto dto = categoryService.createNewCategory(categoryDto);
+	public ResponseEntity<?> createNewCategory(@RequestBody String name) {
+		CategoryDto dto = categoryService.createNewCategory(name);
 		return ResponseEntity.ok().body(dto);
 	}
 

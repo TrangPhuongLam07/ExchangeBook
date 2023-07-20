@@ -68,15 +68,15 @@ public class PostServiceImpl implements PostService {
 		return createdPost;
 	}
 
-	@Override
-	public List<PostDto> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec) {
-		Pageable paging = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, sortBy));
-		Page<Post> paged = postRepository.findAll(spec, paging);
-		
-		return paged.getContent().stream().map(post -> postMapper.toPostDto(post))
-				.collect(Collectors.toList());
-
-	}
+//	@Override
+//	public List<PostResponse> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec) {
+//		Pageable paging = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, sortBy));
+//		Page<Post> paged = postRepository.findAll(spec, paging);
+//		
+//		return paged.getContent().stream().map(post -> postMapper.toPostDto(post))
+//				.collect(Collectors.toList());
+//
+//	}
 
 	@Override
 	public PostResponse getOnePost(Long id) {
