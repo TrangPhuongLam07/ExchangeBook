@@ -1,7 +1,7 @@
 package com.exchangeBook.ExchangeBook.entity;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -42,7 +42,7 @@ public class Post {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private EStatus status;
+	private EPostStatus status;
 
 	@Column(nullable = false)
 	private LocalDateTime dateCreated;
@@ -54,7 +54,7 @@ public class Post {
 	private LocalDateTime datePosted;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Image> images;
+	private List<Image> images;
 
 	@ManyToOne
 	@JoinColumn(name = "id_category")
@@ -65,5 +65,5 @@ public class Post {
 	private User user;
 
 	@OneToMany(mappedBy = "post")
-	private Set<ExchangeForm> exchangeForms;
+	private List<ExchangeForm> exchangeForms;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Post;
-import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
+import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
+import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 import com.exchangeBook.ExchangeBook.service.PostService;
 
 import jakarta.transaction.Transactional;
@@ -29,6 +32,7 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Or;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -42,9 +46,9 @@ public class PostController {
 	 * @body {title, author, category, description, status, images}
 	 * @access Login required
 	 */
-	@PostMapping(/* consumes = MediaType.MULTIPART_FORM_DATA_VALUE */)
-	public ResponseEntity<?> createNewPost(@RequestPart PostDto postDto, @RequestPart MultipartFile[] images) {
-		PostDto dto = postService.createNewPost(postDto, images);
+	@PostMapping
+	public ResponseEntity<?> createNewPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] images) {
+		PostDto dto = postService.createNewPost(postRequest, images);
 		return ResponseEntity.ok().body(dto);
 	}
 
@@ -62,8 +66,8 @@ public class PostController {
 					@Spec(path = "author", params = "author", spec = Like.class),
 					@Spec(path = "status", params = "status", spec = Equal.class),
 					@Spec(path = "category.name", params = "category", spec = Like.class) }) Specification<Post> postSpec) {
-		List<PostDto> dto = postService.getAllPosts(page, size, sort, postSpec);
-		return ResponseEntity.ok().body(dto);
+		PostPagingResponse postPagingResponse = postService.getAllPosts(page, size, sort, postSpec);
+		return ResponseEntity.ok().body(postPagingResponse);
 	}
 
 	/**
@@ -80,8 +84,8 @@ public class PostController {
 					@Spec(path = "author", params = "keyword", spec = Like.class),
 					@Spec(path = "description", params = "keyword", spec = Like.class),
 					@Spec(path = "category.name", params = "keyword", spec = Like.class) }) Specification<Post> postSpec) {
-		List<PostDto> dto = postService.getAllPosts(page, size, sortBy, postSpec);
-		return ResponseEntity.ok().body(dto);
+		PostPagingResponse postPagingResponse = postService.getAllPosts(page, size, sortBy, postSpec);
+		return ResponseEntity.ok().body(postPagingResponse);
 	}
 
 	/**
@@ -92,7 +96,7 @@ public class PostController {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getOnePost(@PathVariable Long id) {
-		PostResponse response = postService.getOnePost(id);
+		PostDetailResponse response = postService.getOnePost(id);
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -103,8 +107,8 @@ public class PostController {
 	 * @access Login required
 	 */
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateOnePost(@PathVariable Long id, @RequestBody PostDto postDto) {
-		PostDto dto = postService.updateOnePost(id, postDto);
+	public ResponseEntity<?> updateOnePost(@PathVariable Long id, @RequestPart PostRequest postRequest, @RequestPart MultipartFile[] images) {
+		PostDto dto = postService.updateOnePost(id, postRequest, images);
 		return ResponseEntity.ok().body(dto);
 	}
 

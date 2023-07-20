@@ -11,7 +11,8 @@ import com.exchangeBook.ExchangeBook.dto.CategoryDto;
 import com.exchangeBook.ExchangeBook.dto.ImageDto;
 import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Post;
-import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostsResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 
 @Component
@@ -26,10 +27,6 @@ public class PostMapper {
 	@Autowired
 	CategoryMapper categoryMapper;
 
-	public Post toPost(PostDto postDto) {
-		return null;
-	}
-
 	public PostDto toPostDto(Post post) {
 		PostDto postDto = new PostDto();
 		postDto.setTitle(post.getTitle());
@@ -39,25 +36,40 @@ public class PostMapper {
 		postDto.setDateCreated(post.getDateCreated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		postDto.setDateUpdated(post.getDateUpdated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
 		postDto.setDatePosted(post.getDatePosted().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-		postDto.setCategory(post.getCategory().getId());
+		postDto.setCategory(categoryMapper.toCategoryDto(post.getCategory()));
 
 		return postDto;
 	}
 
-	public PostResponse toPostResponse(Post post) {
+	public PostDetailResponse toPostDetailResponse(Post post) {
 
 		List<ImageDto> images = post.getImages().stream().map(image -> imageMapper.toImageDto(image))
 				.collect(Collectors.toList());
 
 		CategoryDto category = categoryMapper.toCategoryDto(post.getCategory());
 
-		PostResponse postResponse = PostResponse.builder().title(post.getTitle()).author(post.getAuthor())
-				.description(post.getDescription()).status(post.getStatus().toString())
+		PostDetailResponse postDetailResponse = PostDetailResponse.builder().id(post.getId()).title(post.getTitle())
+				.author(post.getAuthor()).description(post.getDescription()).status(post.getStatus().toString())
 				.dateCreated(post.getDateCreated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 				.dateUpdated(post.getDateUpdated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 				.datePosted(post.getDatePosted().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 				.category(category).images(images).build();
 
-		return postResponse;
+		return postDetailResponse;
+	}
+
+	public PostsResponse toPostsResponse(Post post) {
+
+		ImageDto imageDto = imageMapper.toImageDto(post.getImages().get(0));
+
+		CategoryDto category = categoryMapper.toCategoryDto(post.getCategory());
+
+		PostsResponse postsResponse = PostsResponse.builder().id(post.getId()).title(post.getTitle())
+				.author(post.getAuthor()).description(post.getDescription()).status(post.getStatus().toString())
+				.dateCreated(post.getDateCreated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+				.dateUpdated(post.getDateUpdated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+				.datePosted(post.getDatePosted().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
+				.category(category).image(imageDto).build();
+		return postsResponse;
 	}
 }

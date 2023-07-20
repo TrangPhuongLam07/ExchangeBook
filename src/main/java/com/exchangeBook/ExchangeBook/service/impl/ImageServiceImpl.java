@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,8 @@ public class ImageServiceImpl implements ImageService {
 
 	@Override
 	public Image uploadImage(MultipartFile file) {
-		String filePath = uploadDir + new Date().getTime()+"_" + file.getOriginalFilename();
+		String filePath = uploadDir + new Date().getTime() + "_" + file.getOriginalFilename();
+
 		Image image = imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
 				.size(file.getSize()).path(filePath).build());
 		try {
@@ -48,8 +48,8 @@ public class ImageServiceImpl implements ImageService {
 	}
 
 	@Override
-	public Set<Image> uploadMultiImage(MultipartFile[] images) {
-		return Arrays.asList(images).stream().map((image) -> uploadImage(image)).collect(Collectors.toSet());
+	public List<Image> uploadMultiImage(MultipartFile[] images) {
+		return Arrays.asList(images).stream().map((image) -> uploadImage(image)).collect(Collectors.toList());
 	}
 
 	@Override

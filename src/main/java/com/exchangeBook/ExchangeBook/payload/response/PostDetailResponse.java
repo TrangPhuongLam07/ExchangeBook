@@ -18,21 +18,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostResponse {
+public class PostDetailResponse {
 
-		@NotBlank
-		private String title;
-		private String author;
-		private String description;
-		private String status;
-		private long dateCreated;
-		private long dateUpdated;
-		private long datePosted;
-		
-		@NotNull
-		private CategoryDto category;
-		
-		private List<ImageDto> images;
+	private Long id;
+	private String title;
+	private String author;
+	private String description;
+	private String status;
+	private long dateCreated;
+	private long dateUpdated;
+	private long datePosted;
+	private CategoryDto category;
+	private List<ImageDto> images;
 
 //		private User user;
 }
