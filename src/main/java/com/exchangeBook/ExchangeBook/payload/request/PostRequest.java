@@ -15,16 +15,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostRequest {
 
-	@NotBlank
 	private String title;
 	private String author;
 	private String description;
 	private String status;
-
-	@NotNull
 	private Long category;
 
-	private MultipartFile[] images;
+//	private MultipartFile[] images;
 
 //		private User user;
 

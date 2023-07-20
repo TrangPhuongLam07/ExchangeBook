@@ -26,6 +26,4 @@ public class Address {
 	private String ward;
 	private String detail;
 
-	@OneToOne(mappedBy = "address")
-	private User user;
 }

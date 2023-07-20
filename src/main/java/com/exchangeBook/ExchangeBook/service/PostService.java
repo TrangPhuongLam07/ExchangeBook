@@ -7,17 +7,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Post;
-import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
+import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
+import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 
 public interface PostService {
 
-	PostDto createNewPost(PostDto postDto, MultipartFile[] images);
+	PostDto createNewPost(PostRequest postRequest, MultipartFile[] images);
 
-	List<PostDto> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec);
+	PostPagingResponse getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec);
 
-	PostResponse getOnePost(Long id);
+	PostDetailResponse getOnePost(Long id);
 
-	PostDto updateOnePost(Long id, PostDto postDto);
+	PostDto updateOnePost(Long id, PostRequest postRequest, MultipartFile[] images);
 
 	PostDto deleteOnePost(Long id);
 

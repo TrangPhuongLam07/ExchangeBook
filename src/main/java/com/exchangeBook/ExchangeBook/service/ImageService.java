@@ -1,7 +1,6 @@
 package com.exchangeBook.ExchangeBook.service;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +10,7 @@ public interface ImageService {
 
 	Image uploadImage(MultipartFile image);
 
-	Set<Image> uploadMultiImage(MultipartFile[] images);
+	List<Image> uploadMultiImage(MultipartFile[] images);
 
 	byte[] downloadImage(String imageName);
 
