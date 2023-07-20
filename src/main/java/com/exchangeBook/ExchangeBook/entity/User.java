@@ -1,10 +1,11 @@
 package com.exchangeBook.ExchangeBook.entity;
 
 import java.util.Set;
-import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,6 +41,7 @@ public class User {
 	private String phoneNumber;
 	
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private ERole role;
 	
 	private int point;
