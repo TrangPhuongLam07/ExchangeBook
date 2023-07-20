@@ -1,11 +1,10 @@
-package com.exchangeBook.ExchangeBook.dto;
+package com.exchangeBook.ExchangeBook.payload.response;
 
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
+import com.exchangeBook.ExchangeBook.dto.CategoryDto;
+import com.exchangeBook.ExchangeBook.dto.ImageDto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +16,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostDto {
+public class PostsResponse {
 
+	private Long id;
 	private String title;
 	private String author;
 	private String description;
@@ -26,10 +26,7 @@ public class PostDto {
 	private long dateCreated;
 	private long dateUpdated;
 	private long datePosted;
-
 	private CategoryDto category;
+	private ImageDto image;
 
-//	private MultipartFile[] images;
-
-//	private User user;
 }

@@ -1,7 +1,8 @@
 package com.exchangeBook.ExchangeBook.entity;
 
-import java.util.Set;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,15 +45,22 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	private ERole role;
 	
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private EUserStatus status;
+	
+	@Column(nullable = false)
 	private int point;
 	
-	@OneToOne
-    @JoinColumn(name = "id_address")
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	private Image image;
+	
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Address address;
 	
 	@OneToMany(mappedBy = "user")
-	private Set<Post> posts;
+	private List<Post> posts;
 	
 	@OneToMany(mappedBy = "user")
-	private Set<ExchangeForm> exchangeForms;
+	private List<ExchangeForm> exchangeForms;
 }
