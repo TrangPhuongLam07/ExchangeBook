@@ -39,6 +39,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PostDto createNewPost(PostDto postDto, MultipartFile[] images) {
+		System.out.println(postDto);
 		Category category = categoryRepository.findById(postDto.getCategory()).get();
 		
 		Set<Image> imageList = imageService.uploadMultiImage(images);
