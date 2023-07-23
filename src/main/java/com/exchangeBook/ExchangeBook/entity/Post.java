@@ -1,6 +1,7 @@
 package com.exchangeBook.ExchangeBook.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -56,7 +57,8 @@ public class Post {
 	private LocalDateTime datePosted;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Image> images;
+	@Builder.Default
+	private List<Image> images = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "id_category")
