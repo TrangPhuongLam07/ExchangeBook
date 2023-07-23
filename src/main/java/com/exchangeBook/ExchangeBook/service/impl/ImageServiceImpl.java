@@ -3,7 +3,7 @@ package com.exchangeBook.ExchangeBook.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Date;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,21 +28,22 @@ public class ImageServiceImpl implements ImageService {
 
 	@Override
 	public Image uploadImage(MultipartFile file) {
-		String filePath = uploadDir + new Date().getTime() + "_" + file.getOriginalFilename();
-
-		Image image = imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
-				.size(file.getSize()).path(filePath).build());
+		// Get file name
+		String fileName = file.getOriginalFilename();
+		// Create the directory if it does not exist.
+		File directory = new File(uploadDir);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+		// Save the file to the directory.
 		try {
-			file.transferTo(new File(filePath));
+			file.transferTo(new File(directory, fileName));
+			return imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
+					.size(file.getSize()).path(uploadDir + file.getOriginalFilename()).build());
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		if (image != null) {
-			return image;
 		}
 		return null;
 	}
@@ -66,6 +67,15 @@ public class ImageServiceImpl implements ImageService {
 	@Override
 	public List<byte[]> downloadMultiImage(String[] imagesName) {
 		return Arrays.asList(imagesName).stream().map(this::downloadImage).collect(Collectors.toList());
+	}
+
+	@Override
+	public void deleteImage(String fileName) {
+		try {
+			Files.delete(Paths.get(uploadDir).resolve(fileName));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

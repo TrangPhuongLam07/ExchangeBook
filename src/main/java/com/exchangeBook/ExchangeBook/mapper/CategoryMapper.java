@@ -9,9 +9,7 @@ import com.exchangeBook.ExchangeBook.entity.Category;
 public class CategoryMapper {
 
 	public CategoryDto toCategoryDto(Category category) {
-		CategoryDto categoryDto = new CategoryDto();
-		categoryDto.setId(category.getId());
-		categoryDto.setName(category.getName());
+		CategoryDto categoryDto = CategoryDto.builder().id(category.getId()).name(category.getName()).build();
 		return categoryDto;
 	}
 }
