@@ -16,6 +16,6 @@ import lombok.Setter;
 @Builder
 public class CategoryDto {
 
-	@NotBlank
+	private Long id;
 	private String name;
 }

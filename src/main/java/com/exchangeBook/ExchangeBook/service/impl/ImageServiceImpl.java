@@ -2,7 +2,16 @@ package com.exchangeBook.ExchangeBook.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchEvent.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,6 +77,16 @@ public class ImageServiceImpl implements ImageService {
 	public List<byte[]> downloadMultiImage(String[] imagesName) {
 		return Arrays.asList(imagesName).stream().map((imageName) -> downloadImage(imageName))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void deleteImage(String fileName) {
+		try {
+			Files.delete(Paths.get(uploadDir).resolve(fileName));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
