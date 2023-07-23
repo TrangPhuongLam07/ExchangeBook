@@ -1,7 +1,6 @@
 package com.exchangeBook.ExchangeBook.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -17,11 +16,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -55,8 +56,7 @@ public class Post {
 	private LocalDateTime datePosted;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
-	private List<Image> images = new ArrayList<>();
+	private List<Image> images;
 
 	@ManyToOne
 	@JoinColumn(name = "id_category")
@@ -68,4 +68,9 @@ public class Post {
 
 	@OneToMany(mappedBy = "post")
 	private List<ExchangeForm> exchangeForms;
+
+	public void setImages(List<Image> imageList) {
+		this.getImages().clear();
+		this.getImages().addAll(imageList);
+	}
 }
