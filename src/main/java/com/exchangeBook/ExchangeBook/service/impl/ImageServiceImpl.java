@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,9 @@ public class ImageServiceImpl implements ImageService {
 	@Override
 	public Image uploadImage(MultipartFile file) {
 		// Get file name
-		String fileName = file.getOriginalFilename();
+		String fileName = (new Date().getTime() / 1000) + file.getOriginalFilename();
+		String filePath = uploadDir + fileName;
+
 		// Create the directory if it does not exist.
 		File directory = new File(uploadDir);
 		if (!directory.exists()) {
@@ -37,9 +40,9 @@ public class ImageServiceImpl implements ImageService {
 		}
 		// Save the file to the directory.
 		try {
-			file.transferTo(new File(directory, fileName));
+			file.transferTo(new File(filePath));
 			return imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
-					.size(file.getSize()).path(uploadDir + file.getOriginalFilename()).build());
+					.size(file.getSize()).path(filePath).build());
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

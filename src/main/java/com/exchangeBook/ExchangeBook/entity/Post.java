@@ -70,7 +70,10 @@ public class Post {
 	private List<ExchangeForm> exchangeForms;
 
 	public void setImages(List<Image> imageList) {
-		this.getImages().clear();
-		this.getImages().addAll(imageList);
+		System.out.println("list "+imageList);
+		if (this.getImages() != null) {
+			this.getImages().clear();
+		}
+		this.images = imageList;
 	}
 }
