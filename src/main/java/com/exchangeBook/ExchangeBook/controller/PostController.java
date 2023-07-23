@@ -1,7 +1,5 @@
 package com.exchangeBook.ExchangeBook.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -32,7 +29,6 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Or;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -61,7 +57,7 @@ public class PostController {
 	@Transactional
 	@GetMapping
 	public ResponseEntity<?> getAllPosts(@RequestParam(defaultValue = "1") Integer page,
-			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort,
+			@RequestParam(defaultValue = "5") Integer size, @RequestParam(defaultValue = "dateCreated") String sort,
 			@And({ @Spec(path = "title", params = "title", spec = Like.class),
 					@Spec(path = "author", params = "author", spec = Like.class),
 					@Spec(path = "status", params = "status", spec = Equal.class),

@@ -45,9 +45,7 @@ public class PostMapper {
 
 		List<ImageDto> images = post.getImages().stream().map(image -> imageMapper.toImageDto(image))
 				.collect(Collectors.toList());
-
 		CategoryDto category = categoryMapper.toCategoryDto(post.getCategory());
-
 		PostDetailResponse postDetailResponse = PostDetailResponse.builder().id(post.getId()).title(post.getTitle())
 				.author(post.getAuthor()).description(post.getDescription()).status(post.getStatus().toString())
 				.dateCreated(post.getDateCreated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())

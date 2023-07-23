@@ -55,21 +55,17 @@ public class ImageServiceImpl implements ImageService {
 	@Override
 	public byte[] downloadImage(String fileName) {
 		Image image = imageRepository.findByName(fileName);
-		String filePath = image.getPath();
-		byte[] images = null;
 		try {
-			images = Files.readAllBytes(new File(filePath).toPath());
+			return Files.readAllBytes(new File(image.getPath()).toPath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return images;
+		return null;
 	}
 
 	@Override
 	public List<byte[]> downloadMultiImage(String[] imagesName) {
-		return Arrays.asList(imagesName).stream().map((imageName) -> downloadImage(imageName))
-				.collect(Collectors.toList());
+		return Arrays.asList(imagesName).stream().map(this::downloadImage).collect(Collectors.toList());
 	}
 
 }
