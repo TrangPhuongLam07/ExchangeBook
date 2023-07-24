@@ -4,12 +4,12 @@ import com.exchangeBook.ExchangeBook.model.Book;
 import com.exchangeBook.ExchangeBook.model.BookImage;
 import com.exchangeBook.ExchangeBook.modelBase.BookBase;
 import com.exchangeBook.ExchangeBook.repository.BookImageRepository;
+import com.exchangeBook.ExchangeBook.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.exchangeBook.ExchangeBook.repository.BookRepository;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,7 +38,7 @@ public class BookServiceImpl implements BookService {
         // var user = userRepository.findById(userId);
         if (bookBase != null) {
             //book.setId(id);
-            book.setCreatedDate(new Date(System.currentTimeMillis()));
+            book.setCreatedDate(LocalDateTime.now());
             book.setAuthor(bookBase.getAuthor());
             book.setDescription(bookBase.getDescription());
             book.setName(bookBase.getName());
@@ -65,7 +65,7 @@ public class BookServiceImpl implements BookService {
             BookImage bookImage = new BookImage();
             bookImage.setBook(product);
             bookImage.setImage(path);
-            bookImage.setCreatedDate(new Date(System.currentTimeMillis()));
+            bookImage.setCreatedDate(LocalDateTime.now());
             //bookImage.setId(UUID.randomUUID());
             bookImageRepository.save(bookImage);
         }

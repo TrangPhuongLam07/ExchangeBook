@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,7 +12,7 @@ import java.util.List;
 public class BookBase {
     private String name;
     private String author;
-    private Date createdDate;
+    private LocalDateTime createdDate;
     private String description;
     List<MultipartFile> images;
 }

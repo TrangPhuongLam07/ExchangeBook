@@ -8,7 +8,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -23,7 +23,7 @@ public class BookImage implements Serializable {
     @Id
     @GeneratedValue
     private UUID id;
-    private Date createdDate;
+    private LocalDateTime createdDate;
     private String image;
     @ManyToOne
     @JoinColumn(name="book_id")

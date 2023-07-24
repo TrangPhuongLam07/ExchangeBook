@@ -9,7 +9,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,7 +27,7 @@ public class Book implements Serializable {
     private UUID id;
     private String name;
     private String author;
-    private Date createdDate;
+    private LocalDateTime createdDate;
     private String description;
     private boolean isExchange;
     @ManyToOne(fetch = FetchType.EAGER)
