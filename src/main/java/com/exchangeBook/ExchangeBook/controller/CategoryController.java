@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.exchangeBook.ExchangeBook.dto.CategoryDto;
 import com.exchangeBook.ExchangeBook.service.CategoryService;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {

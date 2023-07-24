@@ -57,7 +57,7 @@ public class Post {
 	private LocalDateTime datePosted;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
+	@Builder.Default 
 	private List<Image> images = new ArrayList<>();
 
 	@ManyToOne
