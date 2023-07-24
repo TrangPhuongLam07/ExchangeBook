@@ -19,7 +19,6 @@ import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
 import com.exchangeBook.ExchangeBook.service.UserService;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

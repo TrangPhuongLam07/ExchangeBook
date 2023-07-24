@@ -32,7 +32,6 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Or;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
