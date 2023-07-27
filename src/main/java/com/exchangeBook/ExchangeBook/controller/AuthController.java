@@ -174,4 +174,42 @@ public class AuthController {
         }
         return ResponseEntity.ok(currentUser);
     }
+
+    // Check user login or not
+    @GetMapping("/login-check")
+    public ResponseEntity<?> loginCheck() throws JsonProcessingException {
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null){
+            Map<String, String> body = new HashMap<>();
+            body.put("OK", "YOU ARE LOGIN");
+            String jsonBody = objectMapper.writeValueAsString(body);
+            return ResponseEntity.ok().body(jsonBody);
+        }else {
+            Map<String, String> body = new HashMap<>();
+            body.put("FAIL", "YOU ARE NOT LOGGED IN");
+            String jsonBody = objectMapper.writeValueAsString(body);
+            return ResponseEntity.ok().body(jsonBody);
+        }
+    }
+
+    // test login
+//    @GetMapping ("/login-test")
+//    public String formLoginTest(){
+//        return "login-test";
+//    }
+    @PostMapping ("/login-test")
+    public String LoginTest(){
+
+        return "login-test";
+    }
 }
+
+
+
+
+
+
+
+
+
+

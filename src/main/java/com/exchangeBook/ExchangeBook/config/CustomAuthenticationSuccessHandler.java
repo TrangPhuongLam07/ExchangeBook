@@ -8,6 +8,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /*
 Create By : ANHTUAN
@@ -17,9 +18,19 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, IOException {
-        String targetUrl = determineTargetUrl(authentication);
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//        String targetUrl = determineTargetUrl(authentication);
+//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+        // Customize your JSON response here
+        String jsonResponse = "{\"message\": \"Login successful.\", \"username\": \"" + authentication.getName() + "\"}";
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.print(jsonResponse);
+        out.flush();
     }
+
 
     private String determineTargetUrl(Authentication authentication) {
         // Assuming your User object is stored in the authentication principal

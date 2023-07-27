@@ -61,8 +61,8 @@ public class SecurityConfig {
 
                                 .anyRequest().authenticated()
 
-                )
-                .formLogin(Customizer.withDefaults());
+                ).formLogin(Customizer.withDefaults()
+                );
 
         // Handel's error 403 and Return a text type json
         http.exceptionHandling(exceptionHandling ->
@@ -70,12 +70,15 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler())
         );
 
-//         Because is not form Login from FE yet, so i close
-//        http.formLogin(form -> form
-//                .loginProcessingUrl("/admin/login-auth") // the method to handle credentials (POST)
-//                .successHandler(customAuthenticationSuccessHandler)
-//                .permitAll()
-//        );
+//         Because is not form Login from FE yet, so I close
+        http.formLogin(form -> form
+//                .loginPage("/login-test") // your font to login (GET)
+//                .loginProcessingUrl("/login-test") // your the method to handle credentials (POST)
+
+                        // I USED FORM DEFAULT TO TEST WHEN LOGIN SUCCESS, IF YOU HAVE FORMS LET USE IT AND CLOSE THIS
+                .successHandler(customAuthenticationSuccessHandler)
+                .permitAll()
+        );
 
 //        http.formLogin(form -> form
 //                .loginProcessingUrl("/users/login-auth")
