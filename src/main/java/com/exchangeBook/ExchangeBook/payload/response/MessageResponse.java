@@ -1,4 +1,4 @@
-package com.exchangeBook.ExchangeBook.advice.message;
+package com.exchangeBook.ExchangeBook.payload.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseMessage {
+public class MessageResponse {
 
 	private String message;
 }

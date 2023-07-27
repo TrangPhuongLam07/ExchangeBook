@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
 		user.setPhoneNumber(userRequest.getPhoneNumber());
 		user.setRole(userRequest.getRole());
 		user.setAddress(address);
-		user.setImage(avatar);
+		user.setAvatar(avatar);
 		
 		user = userRepository.save(user);
 		
