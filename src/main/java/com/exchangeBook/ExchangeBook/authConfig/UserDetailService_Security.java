@@ -1,4 +1,4 @@
-package com.exchangeBook.ExchangeBook.config;
+package com.exchangeBook.ExchangeBook.authConfig;
 
 import com.exchangeBook.ExchangeBook.model.User;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;

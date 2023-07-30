@@ -5,11 +5,14 @@ import com.exchangeBook.ExchangeBook.model.User;
 import com.exchangeBook.ExchangeBook.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -84,31 +87,6 @@ public class AuthController {
         }
 
         return null;
-    }
-
-    @GetMapping("/admin/{id}")
-    public ResponseEntity<?> getAllUser(@PathVariable("id") Long id) throws JsonProcessingException {
-            authentication = SecurityContextHolder.getContext().getAuthentication();
-            User currentUser = userService.getUserById(id);
-
-            if (!currentUser.getUserName().equals(authentication.getName())) {
-                throw new AccessDeniedException("Not authorized");
-            }
-            return ResponseEntity.ok(currentUser);
-    }
-
-    @GetMapping("/admin/user-all")
-    public ResponseEntity<List<User>> getAllUser() {
-        return ResponseEntity.ok().body(userService.getAllUser());
-    }
-
-    @GetMapping("/admin/role-admin-all")
-    public ResponseEntity<List<User>> getAllAdmin() {
-        return ResponseEntity.ok().body(userService.getAllAdmin());
-    }
-    @GetMapping("/admin/role-user-all")
-    public ResponseEntity<List<User>> getAllJustUser() {
-        return ResponseEntity.ok().body(userService.getAllJustUser());
     }
 
     // --------------- FOR USER --------------
@@ -191,16 +169,65 @@ public class AuthController {
             return ResponseEntity.ok().body(jsonBody);
         }
     }
-
-    // test login
-//    @GetMapping ("/login-test")
-//    public String formLoginTest(){
-//        return "login-test";
-//    }
-    @PostMapping ("/login-test")
-    public String LoginTest(){
-
+    // test login by form login myself
+    @GetMapping ("/login-test")
+    public String formLoginTest(){
         return "login-test";
+    }
+    @PostMapping ("/login-test")
+    public ResponseEntity<? extends Object> loginTest(HttpServletRequest request){
+        if(isJsonRequest(request)) {
+            // JSON login
+
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+
+            authentication = SecurityContextHolder.getContext().getAuthentication();
+            User loginByUsername = userService.getUserByUsername(username);
+            User loginByEmail = userService.getUserByEmail(username);
+            try {
+                if (loginByUsername != null) {
+                    if(userService.authenticate(loginByUsername.getPassword(),password)){
+                        Map<String, String> body = new HashMap<>();
+                        body.put("OK", "LOGIN SUCCESSFULLY");
+                        String jsonBody = objectMapper.writeValueAsString(body);
+                        return ResponseEntity.ok().body(jsonBody);
+                    }else {
+                        Map<String, String> body = new HashMap<>();
+                        body.put("FAIL", "LOGIN FAIL");
+                        String jsonBody = objectMapper.writeValueAsString(body);
+                        return ResponseEntity.ok().body(jsonBody);
+                    }
+                }
+                if (loginByEmail != null) {
+                    if(userService.authenticate(loginByUsername.getPassword(),password)){
+                        Map<String, String> body = new HashMap<>();
+                        body.put("OK", "LOGIN SUCCESSFULLY");
+                        String jsonBody = objectMapper.writeValueAsString(body);
+                        return ResponseEntity.ok().body(jsonBody);
+                    }else {
+                        Map<String, String> body = new HashMap<>();
+                        body.put("FAIL", "LOGIN FAIL");
+                        String jsonBody = objectMapper.writeValueAsString(body);
+                        return ResponseEntity.ok().body(jsonBody);
+                    }
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid credentials"));
+            }
+
+        } else {
+            // Form login
+            return ResponseEntity.ok("Redirect to homepage");
+        }
+        return null;
+    }
+
+    // Check if JSON content type
+    public boolean isJsonRequest(HttpServletRequest request) {
+        String type = request.getContentType();
+        return type != null && type.contains("application/json");
     }
 }
 
