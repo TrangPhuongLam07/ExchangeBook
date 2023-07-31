@@ -53,11 +53,15 @@ public class User {
 	@Column(nullable = false)
 	private int point;
 	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL)
 	private Image avatar;
 	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL)
 	private Address address;
+	
+	@OneToOne(mappedBy = "user")
+	private ConfirmationToken token;
+	
 	
 	@OneToMany(mappedBy = "user")
 	private List<Post> posts;

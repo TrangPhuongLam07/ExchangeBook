@@ -15,6 +15,7 @@
 	<description>Exchange Book project</description>
 	<properties>
 		<java.version>17</java.version>
+		<jwt.version>0.11.5</jwt.version>
 	</properties>
 	<dependencies>
 		 <dependency>
@@ -53,12 +54,18 @@
 		    <groupId>org.springframework.boot</groupId> 
 		    <artifactId>spring-boot-starter-validation</artifactId> 
 		</dependency>
-		    <dependency>
-		      <groupId>org.springframework.boot</groupId>
-		      <artifactId>spring-boot-devtools</artifactId>
-		      <scope>runtime</scope>
-		      <optional>true</optional>
-		    </dependency>
+		
+	    <dependency>
+	      <groupId>org.springframework.boot</groupId>
+	      <artifactId>spring-boot-devtools</artifactId>
+	      <scope>runtime</scope>
+	      <optional>true</optional>
+	    </dependency>
+	    
+	    <dependency>
+	      <groupId>org.springframework.boot</groupId>
+	      <artifactId>spring-boot-starter-mail</artifactId>
+	    </dependency>
 
 		<dependency>
 	      <groupId>org.projectlombok</groupId>
@@ -82,6 +89,12 @@
 		    <artifactId>jjwt-jackson</artifactId>
 		    <version>0.11.5</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		</dependency>
 
 	    
 	    <!-- https://mvnrepository.com/artifact/net.kaczmarzyk/specification-arg-resolver -->
@@ -90,7 +103,6 @@
 		    <artifactId>specification-arg-resolver</artifactId>
 		    <version>3.1.0</version>
 		</dependency>
-
 
 	</dependencies>
 
