@@ -1,6 +1,7 @@
 package com.exchangeBook.ExchangeBook.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class UserMapper {
 	PostMapper postMapper;
 
 	public UserDto toUserDto(User user) {
-		UserDto userDto = UserDto.builder().email(user.getEmail()).firstName(user.getFirstName())
+		UserDto userDto = UserDto.builder().firstName(user.getFirstName())
 				.lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
 				.address(addressMapper.toAddressDto(user.getAddress())).build();
 		return userDto;
@@ -35,25 +36,25 @@ public class UserMapper {
 
 	public UserDetailResponse toUserDetailResponse(User user) {
 
-		ImageDto avatar = imageMapper.toImageDto(user.getImage());
-		AddressDto address = addressMapper.toAddressDto(user.getAddress());
+		Optional<ImageDto> avatar = Optional.ofNullable(imageMapper.toImageDto(user.getAvatar()));
+		Optional<AddressDto> address = Optional.ofNullable(addressMapper.toAddressDto(user.getAddress()));
 		List<PostDto> posts = user.getPosts().stream().map(post -> postMapper.toPostDto(post))
 				.collect(Collectors.toList());
 
 		UserDetailResponse userDetailResponse = UserDetailResponse.builder().id(user.getId()).email(user.getEmail())
 				.firstName(user.getFirstName()).lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
-				.role(user.getRole().toString()).avatar(avatar).address(address).posts(posts).build();
+				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).posts(posts).build();
 		return userDetailResponse;
 	}
 
 	public UsersResponse toUsersResponse(User user) {
-		
-		ImageDto avatar = imageMapper.toImageDto(user.getImage());
-		AddressDto address = addressMapper.toAddressDto(user.getAddress());
+
+		Optional<ImageDto> avatar = Optional.ofNullable(imageMapper.toImageDto(user.getAvatar()));
+		Optional<AddressDto> address = Optional.ofNullable(addressMapper.toAddressDto(user.getAddress()));
 
 		UsersResponse usersResponse = UsersResponse.builder().id(user.getId()).email(user.getEmail())
 				.firstName(user.getFirstName()).lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
-				.role(user.getRole().toString()).avatar(avatar).address(address).build();
+				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).build();
 		return usersResponse;
 	}
 }
