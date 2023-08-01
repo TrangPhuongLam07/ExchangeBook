@@ -5,6 +5,7 @@ import com.exchangeBook.ExchangeBook.model.Role;
 import com.exchangeBook.ExchangeBook.model.User;
 import com.exchangeBook.ExchangeBook.repository.RoleRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,14 +55,6 @@ public class UserService {
     public  List<User> getAllJustUser(){
         return userRepository.findAllByRoleName("ROLE_USER");
     }
-    public boolean existsByEmail(String email){
-        return userRepository.existsByEmail(email);
-    }
-    public boolean existsByUsername(String username){
-        return userRepository.existsByUserName(username);
-    }
-
-
 
     public PagingDTO<User> paging(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -131,11 +124,36 @@ public class UserService {
         return userRepository.findByUserName(username).get();
     }
     public User editUser(Long id, User user){
+        User user1 = userRepository.findById(id);
         user.setId(id);
+        user.setRoles(user1.getRoles());
         return userRepository.save(user);
     }
     public User removeUser(Long id){
-        return userRepository.deleteById(id);
+        User user = userRepository.findById(id);
+        userRepository.delete(user);
+        return user;
+    }
+    @Transactional
+    public List<User> removeUsers(List<Long> ids){
+        List<User> users = userRepository.findAllByIdIn(ids);
+        userRepository.deleteAllByIdIn(ids);
+        return users;
+    }
+    public boolean existsByEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
+    public boolean existsByUsername(String username){
+        return userRepository.existsByUserName(username);
+    }
+    public boolean existsByID(Long id){
+        return userRepository.existsById(id);
+    }
+    public boolean existsByIDs(List<Long> ids){
+        return userRepository.findAllByIdIn(ids).size() == ids.size();
+    }
+    public List<User> getUsersByIds(List<Long> ids){
+        return userRepository.findAllByIdIn(ids);
     }
 }
 

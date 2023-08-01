@@ -139,20 +139,6 @@ public class AuthController {
         return null;
     }
 
-    @GetMapping("/users/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable("id") Long id)  {
-
-        authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userService.getUserById(id);
-
-        if (!currentUser.getUserName().equals(authentication.getName())) {
-
-            throw new AccessDeniedException("Not authorized"); // it will be caught by the AccessDeniedHandler  configured in the SecurityFilterChain
-//            throw new AuthenticationCredentialsNotFoundException("401 Unauthorized");
-        }
-        return ResponseEntity.ok(currentUser);
-    }
-
     // Check user login or not
     @GetMapping("/login-check")
     public ResponseEntity<?> loginCheck() throws JsonProcessingException {

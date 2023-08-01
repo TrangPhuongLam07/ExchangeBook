@@ -34,7 +34,7 @@ public class User implements Serializable {
     private boolean isEmailVerified;
     private int gender;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private Set<Book> books;
 
     @ManyToMany(fetch = FetchType.EAGER)

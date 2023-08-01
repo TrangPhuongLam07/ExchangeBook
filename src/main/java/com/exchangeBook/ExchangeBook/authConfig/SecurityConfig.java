@@ -56,8 +56,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers("/roles/save", "/users/register","/users/login").permitAll()
-                                .requestMatchers("/users/{id}").hasAuthority("ROLE_USER")
-                                .requestMatchers("/admin/**").permitAll()
+//                                .requestMatchers("/users/delete/{id}").permitAll()
+                                .requestMatchers("/users/**").hasAuthority("ROLE_USER")
+//                                .requestMatchers("/admin/**").permitAll()
+                                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 
                                 .anyRequest().authenticated()
 
@@ -74,7 +76,7 @@ public class SecurityConfig {
         http.formLogin(form -> form
 
 //                .loginPage("/login-test") // your font to login (GET)
-                .loginProcessingUrl("/login-test") // your the method to handle credentials (POST)
+                .loginProcessingUrl("/login-test") // you have the method to handle credentials (POST)
 
                         // I USED FORM DEFAULT TO TEST WHEN LOGIN SUCCESS, IF YOU HAVE FORMS LET USE IT AND CLOSE THIS
                 .successHandler(customAuthenticationSuccessHandler)
