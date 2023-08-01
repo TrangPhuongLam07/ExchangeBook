@@ -17,6 +17,7 @@ import com.exchangeBook.ExchangeBook.dto.UserDto;
 import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
+import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 import com.exchangeBook.ExchangeBook.service.UserService;
 
 @RestController
@@ -45,6 +46,11 @@ public class UserController {
 	 * @body
 	 * @access Login required
 	 */
+	@GetMapping("/me")
+	public ResponseEntity<?> getCurrentUser() {
+		UserDetailResponse userResponse = userService.getCurrentUser();
+		return ResponseEntity.ok().body(userResponse);
+	}
 
 	/**
 	 * @route GET /users/:id
@@ -66,9 +72,10 @@ public class UserController {
 	 * @access Login required
 	 */
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateOneUser(@PathVariable Long id, @RequestPart UserRequest userRequest, @RequestPart MultipartFile avatar) {
-		UserDto userDto = userService.updateOneUser(id, userRequest, avatar);
-		return ResponseEntity.ok().body(userDto);
+	public ResponseEntity<?> updateOneUser(@PathVariable Long id, @RequestPart UserRequest userRequest,
+			@RequestPart(required = false) MultipartFile avatar) {
+		UserResponse userResponse = userService.updateOneUser(id, userRequest, avatar);
+		return ResponseEntity.ok().body(userResponse);
 	}
 
 	/**
@@ -79,7 +86,7 @@ public class UserController {
 	 */
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteOneUser(@PathVariable Long id) {
-		UserDto userDto = userService.deleteOneUser(id);
-		return ResponseEntity.ok().body(userDto);
+		UserResponse userResponse = userService.deleteOneUser(id);
+		return ResponseEntity.ok().body(userResponse);
 	}
 }

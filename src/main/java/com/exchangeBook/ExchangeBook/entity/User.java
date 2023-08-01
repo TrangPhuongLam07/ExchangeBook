@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,12 +21,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class User {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(unique = true, nullable = false)
+	@Column(unique = true)
 	private String email;
 	
 	@Column(nullable = false)
@@ -51,11 +53,15 @@ public class User {
 	@Column(nullable = false)
 	private int point;
 	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Image image;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Image avatar;
 	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL)
 	private Address address;
+	
+	@OneToOne(mappedBy = "user")
+	private ConfirmationToken token;
+	
 	
 	@OneToMany(mappedBy = "user")
 	private List<Post> posts;

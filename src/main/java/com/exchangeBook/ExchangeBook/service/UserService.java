@@ -6,16 +6,17 @@ import com.exchangeBook.ExchangeBook.dto.UserDto;
 import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
+import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 
 public interface UserService {
 
-//	UserDto createNewUser(UserRequest userRequest);
-	
 	UserPagingResponse getAllUsers(Integer page, Integer size);
+	
+	UserDetailResponse getCurrentUser();
 	
 	UserDetailResponse getOneUser(Long id);
 	
-	UserDto updateOneUser(Long id, UserRequest userRequest, MultipartFile image);
+	UserResponse updateOneUser(Long id, UserRequest userRequest, MultipartFile image);
 	
-	UserDto deleteOneUser(Long id);
+	UserResponse deleteOneUser(Long id);
 }

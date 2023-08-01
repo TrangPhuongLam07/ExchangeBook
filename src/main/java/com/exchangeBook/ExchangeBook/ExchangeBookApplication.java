@@ -1,9 +1,16 @@
 package com.exchangeBook.ExchangeBook;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+
+import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
+import com.exchangeBook.ExchangeBook.service.FileStorageService;
 
 @SpringBootApplication
+@EnableConfigurationProperties({FileStorageProperties.class})
 public class ExchangeBookApplication /*implements CommandLineRunner*/{
 //	@Autowired
 //	private BookRepository bookRepository;
@@ -11,12 +18,12 @@ public class ExchangeBookApplication /*implements CommandLineRunner*/{
 	public static void main(String[] args) {
 		SpringApplication.run(ExchangeBookApplication.class, args);
 	}
-//	@Bean
-//	CommandLineRunner init(FileStorageService storageService) {
-//		return (args) -> {
-//			storageService.init();
-//		};
-//	}
+	@Bean
+	CommandLineRunner init(FileStorageService storageService) {
+		return (args) -> {
+			storageService.init();
+		};
+	}
 
 	//Test get all books, findAll()
 //	@Override

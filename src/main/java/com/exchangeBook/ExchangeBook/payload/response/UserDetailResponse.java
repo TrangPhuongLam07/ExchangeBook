@@ -50,5 +50,5 @@ public class UserDetailResponse {
 	
 	private AddressDto address;
 	
-	private List<PostDto> posts;
+//	private List<PostDto> posts;
 }
