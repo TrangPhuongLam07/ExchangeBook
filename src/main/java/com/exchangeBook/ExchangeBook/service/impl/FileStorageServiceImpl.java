@@ -1,114 +1,94 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
-//@Service
-//public class FileStorageServiceImpl implements FileStorageService{
-//    private final Path root = Paths.get("upload_images");
-//    private final Path categoryFile = Paths.get("upload_images/categories");
-//    @Override
-//    public void init() {
-//        try {
-//            Files.createDirectories(root);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Could not initialize folder for upload!");
-//        }
-//    }
-//
-//    @Override
-//    public void save(MultipartFile file) {
-//        try {
-//            Files.copy(file.getInputStream(), this.root.resolve(Objects.requireNonNull(file.getOriginalFilename())));
-//        } catch (Exception e) {
-//            if (e instanceof FileAlreadyExistsException) {
-//                throw new RuntimeException("A file of that name already exists.");
-//            }
-//
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
-//
-//    @Override
-//    public String saveImage(MultipartFile file) {
-//        UUID uuid = UUID.randomUUID();
-//        String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-//        String fileName = date + "_" + uuid.toString();
-//        String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-//        try {
-//            Files.copy(file.getInputStream(), this.root.resolve(fileName + extension), StandardCopyOption.REPLACE_EXISTING);
-//            return root.toString() + "/" + fileName + extension;
-//        } catch (Exception e) {
-//            if (e instanceof FileAlreadyExistsException) {
-//                throw new RuntimeException("A file of that name already exists.");
-//            }
-//
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
-//
-//    @Override
-//    public Resource load(String filename) {
-//        try {
-//            Path file = root.resolve(filename);
-//            Resource resource = new UrlResource(file.toUri());
-//
-//            if (resource.exists() || resource.isReadable()) {
-//                return resource;
-//            } else {
-//                throw new RuntimeException("Could not read the file!");
-//            }
-//        } catch (MalformedURLException e) {
-//            throw new RuntimeException("Error: " + e.getMessage());
-//        }
-//    }
-//
-//    @Override
-//    public boolean delete(String filename) {
-//        try {
-//            Path file = root.resolve(filename);
-//            return Files.deleteIfExists(file);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Error: " + e.getMessage());
-//        }
-//    }
-//
-//    @Override
-//    public void deleteAll() {
-//        FileSystemUtils.deleteRecursively(root.toFile());
-//    }
-//
-//    @Override
-//    public Stream<Path> loadAll() {
-//        try {
-//            return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Could not load the files!");
-//        }
-//    }
-//
-//    @Override
-//    public String saveFile(MultipartFile file, Path folderName) {
-//        UUID uuid = UUID.randomUUID();
-//        String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-//        String fileName = date + "_" + uuid.toString();
-//        String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-//        try {
-//            Files.copy(file.getInputStream(), folderName.resolve(fileName + extension), StandardCopyOption.REPLACE_EXISTING);
-//            return folderName.toString().replace("\\", "/") + "/" + fileName + extension;
-//        } catch (Exception e) {
-//            if (e instanceof FileAlreadyExistsException) {
-//                throw new RuntimeException("A file of that name already exists.");
-//            }
-//
-//            throw new RuntimeException(e.getMessage());
-//        }
-//    }
-//
-//    @Override
-//    public void deleteFilePath(String path) {
-//        try {
-//            Path file = Paths.get(path);
-//            Files.deleteIfExists(file);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Error: " + e.getMessage());
-//        }
-//    }
-//}
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.exchangeBook.ExchangeBook.exception.StorageException;
+import com.exchangeBook.ExchangeBook.exception.StorageFileNotFoundException;
+import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
+import com.exchangeBook.ExchangeBook.service.FileStorageService;
+
+@Service
+public class FileStorageServiceImpl implements FileStorageService {
+
+	private final Path rootLocation;
+
+	public FileStorageServiceImpl(FileStorageProperties properties) {
+		this.rootLocation = Paths.get(properties.getUploadDir());
+	}
+
+	@Override
+	public void init() {
+		try {
+			Files.createDirectories(rootLocation);
+		} catch (IOException e) {
+			throw new StorageException("Could not initialize storage folder", e);
+		}
+	}
+
+	@Override
+	public void storeFile(MultipartFile file) {
+		try {
+			if (file.isEmpty()) {
+				throw new StorageException("Failed to store empty file");
+			}
+			Path fileUrl = rootLocation.resolve(Paths.get(System.currentTimeMillis() + file.getOriginalFilename()))
+					.normalize().toAbsolutePath();
+
+			try (InputStream inputStream = file.getInputStream()) {
+				Files.copy(inputStream, fileUrl, StandardCopyOption.REPLACE_EXISTING);
+			}
+
+		} catch (IOException e) {
+			throw new StorageException("Failed to store file.", e);
+		}
+	}
+
+	@Override
+	public Path loadOne(String filename) {
+		return rootLocation.resolve(filename);
+	}
+
+	@Override
+	public Stream<Path> loadAll() {
+		try {
+			return Files.walk(rootLocation, 1).filter(path -> !path.equals(rootLocation))
+					.map(this.rootLocation::relativize);
+		} catch (IOException e) {
+			throw new StorageException("Failed to read stored files");
+		}
+	}
+
+	@Override
+	public Resource loadAsResource(String filename) {
+		try {
+			Path file = loadOne(filename);
+			Resource resource = new UrlResource(file.toUri());
+			if (resource.exists() || resource.isReadable()) {
+				return resource;
+			} else {
+				throw new StorageFileNotFoundException("Could not read file" + filename);
+			}
+		} catch (MalformedURLException e) {
+			throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+		}
+	}
+
+	@Override
+	public void deleteAll() {
+		FileSystemUtils.deleteRecursively(rootLocation.toFile());
+	}
+
+}

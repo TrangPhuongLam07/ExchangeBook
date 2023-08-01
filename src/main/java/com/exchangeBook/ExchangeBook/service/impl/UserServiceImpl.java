@@ -1,6 +1,7 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,9 +23,10 @@ import com.exchangeBook.ExchangeBook.mapper.UserMapper;
 import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
-import com.exchangeBook.ExchangeBook.payload.response.UsersResponse;
+import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 import com.exchangeBook.ExchangeBook.repository.AddressRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
+import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 import com.exchangeBook.ExchangeBook.service.UserService;
 
@@ -47,7 +51,7 @@ public class UserServiceImpl implements UserService {
 		Pageable paging = PageRequest.of(page - 1, size);
 		Page<User> paged = userRepository.findAll(paging);
 
-		List<UsersResponse> usersResponses = paged.getContent().stream().map(user -> userMapper.toUsersResponse(user))
+		List<UserResponse> usersResponses = paged.getContent().stream().map(user -> userMapper.toUserResponse(user))
 				.collect(Collectors.toList());
 
 		UserPagingResponse userPagingResponse = UserPagingResponse.builder().totalItems(paged.getTotalElements())
@@ -63,13 +67,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDto updateOneUser(Long id, UserRequest userRequest, MultipartFile image) {
+	public UserResponse updateOneUser(Long id, UserRequest userRequest, MultipartFile image) {
 
-		Image avatar = imageService.uploadImage(image);
+		Image avatar = null;
+		if(image != null) {
+			avatar = imageService.uploadImage(image);
+		} else {
+			
+		}
 		Address address = addressRepository.findById(id).get();
 		
 		User user = userRepository.findById(id).get();
-		user.setEmail(userRequest.getEmail());
 		user.setFirstName(userRequest.getFirstName());
 		user.setLastName(userRequest.getLastName());
 		user.setPhoneNumber(userRequest.getPhoneNumber());
@@ -79,19 +87,31 @@ public class UserServiceImpl implements UserService {
 		
 		user = userRepository.save(user);
 		
-		UserDto userDto = userMapper.toUserDto(user);
+		UserResponse userResponse = userMapper.toUserResponse(user);
 		
-		return userDto;
+		return userResponse;
 	}
 
 	@Override
-	public UserDto deleteOneUser(Long id) {
+	public UserResponse deleteOneUser(Long id) {
 		User user = userRepository.findById(id).get();
 		user.setStatus(EUserStatus.DELETED);
 		user = userRepository.save(user);
 		
-		UserDto userDto = userMapper.toUserDto(user);
-		return userDto;
+		UserResponse userResponse = userMapper.toUserResponse(user);
+		return userResponse;
+	}
+
+	@Override
+	public UserDetailResponse getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if(principal.toString() != "anonymousUser") {
+			UserDetailsImpl userDetail = (UserDetailsImpl) principal;
+			User user = userRepository.findById(userDetail.getId()).get();
+			return userMapper.toUserDetailResponse(user);
+		}
+		return null;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.exchangeBook.ExchangeBook.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -59,9 +60,11 @@ public class WebSecurityConfig {
 
 		http.csrf(csrf -> csrf.disable())
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**", "/api/posts/**").permitAll()
+				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/categories/**", "/api/users/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
+						.requestMatchers("/api/auth/reset-password/**", "/api/auth/logout").authenticated()
 						.anyRequest().authenticated());
 		http.authenticationProvider(authenticationProvider());
 

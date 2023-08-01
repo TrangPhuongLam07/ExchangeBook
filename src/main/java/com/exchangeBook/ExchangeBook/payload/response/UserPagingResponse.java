@@ -19,5 +19,5 @@ import lombok.Setter;
 public class UserPagingResponse {
 	private long totalItems;
 	private int totalPages;
-	private List<UsersResponse> usersResponses;
+	private List<UserResponse> usersResponses;
 }

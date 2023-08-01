@@ -2,18 +2,24 @@ package com.exchangeBook.ExchangeBook.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.entity.Image;
+import com.exchangeBook.ExchangeBook.exception.StorageException;
+import com.exchangeBook.ExchangeBook.exception.StorageFileNotFoundException;
+import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
 import com.exchangeBook.ExchangeBook.repository.ImageRepository;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 
@@ -23,27 +29,34 @@ public class ImageServiceImpl implements ImageService {
 	@Autowired
 	ImageRepository imageRepository;
 
-	@Value("${file.upload-dir}")
-	private String uploadDir;
+	private final Path rootLocation;
+
+	public ImageServiceImpl(FileStorageProperties properties) {
+		this.rootLocation = Paths.get(properties.getUploadDir());
+	}
 
 	@Override
 	public Image uploadImage(MultipartFile file) {
-		String filePath = uploadDir + file.getOriginalFilename();
-		Image image = imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
-				.size(file.getSize()).path(filePath).build());
+		Image image = null;
 		try {
-			file.transferTo(new File(filePath));
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (file.isEmpty()) {
+				throw new StorageException("Failed to store empty file");
+			}
+
+			String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10);
+			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+			image = imageRepository.save(Image.builder().name(fileName).type(file.getContentType()).size(file.getSize())
+					.path(filePath.toString()).build());
+
+			try (InputStream inputStream = file.getInputStream()) {
+				Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+			}
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new StorageException("Failed to store file.", e);
 		}
-		if (image != null) {
-			return image;
-		}
-		return null;
+
+		return image;
 	}
 
 	@Override
@@ -59,8 +72,7 @@ public class ImageServiceImpl implements ImageService {
 		try {
 			images = Files.readAllBytes(new File(filePath).toPath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new StorageFileNotFoundException("Could not read file: " + fileName, e);
 		}
 		return images;
 	}
@@ -74,10 +86,12 @@ public class ImageServiceImpl implements ImageService {
 	@Override
 	public void deleteImage(String fileName) {
 		try {
-			Files.delete(Paths.get(uploadDir).resolve(fileName));
+			Image image = imageRepository.findByName(fileName);
+			Path file = rootLocation.resolve(fileName);
+			Files.deleteIfExists(file);
+			imageRepository.deleteById(image.getId());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new StorageException("Failed to delete file");
 		}
 	}
 

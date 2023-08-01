@@ -17,4 +17,5 @@ public interface ImageService {
 	List<byte[]> downloadMultiImage(String[] imagesName);
 
 	void deleteImage(String fileName);
+	
 }
