@@ -29,7 +29,7 @@ public class ExchangeController {
         boolean result = exchangeBookService.exchangeBook(emailMessageRequest);
         return result;
     }
-   @PostMapping()
+   @PostMapping("/update/{id}")
    public boolean updatePointAfterExchanging(@PathVariable Long id){
         boolean result = exchangeBookService.updatePoint(id);
         return result;
