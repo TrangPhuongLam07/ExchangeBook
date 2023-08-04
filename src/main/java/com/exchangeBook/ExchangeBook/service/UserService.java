@@ -19,4 +19,5 @@ public interface UserService {
 	UserResponse updateOneUser(Long id, UserRequest userRequest, MultipartFile image);
 	
 	UserResponse deleteOneUser(Long id);
+	boolean checkPoint(Long userId);
 }
