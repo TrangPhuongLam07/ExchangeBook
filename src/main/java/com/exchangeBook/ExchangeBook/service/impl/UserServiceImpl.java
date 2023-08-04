@@ -113,5 +113,11 @@ public class UserServiceImpl implements UserService {
 		}
 		return null;
 	}
-
+	@Override
+	public boolean checkPoint(Long userId) {
+		User user = userRepository.findById(userId).get();
+		if(user.getPoint() > 0)
+			return true;
+		return false;
+	}
 }
