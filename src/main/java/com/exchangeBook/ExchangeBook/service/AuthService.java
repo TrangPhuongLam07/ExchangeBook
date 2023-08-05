@@ -1,30 +1,26 @@
 package com.exchangeBook.ExchangeBook.service;
 
-import java.io.UnsupportedEncodingException;
-
-import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
 
-import jakarta.mail.MessagingException;
-
 public interface AuthService {
 
-	String registerNewUser(RegisterRequest registerRequest) throws UnsupportedEncodingException, MessagingException;
+	ResponseEntity<?> registerNewUser(RegisterRequest registerRequest);
 
-	ResponseCookie authenticateUser(LoginRequest loginRequest);
+	ResponseEntity<?> authenticateUser(LoginRequest loginRequest);
 	
-	boolean verifyConfirmationToken(String token);
+	ResponseEntity<?> verifyConfirmationToken(String token);
 	
-	String resendVerificationEmail(String userEmail) throws UnsupportedEncodingException, MessagingException;
+	ResponseEntity<?> resendVerificationEmail(String userEmail);
 	
-	String sendForgetPasswordToken(String email) throws UnsupportedEncodingException, MessagingException;
+	ResponseEntity<?> sendForgetPasswordToken(String email);
 	
-	String resendForgetPasswordToken(String email) throws UnsupportedEncodingException, MessagingException;
+	ResponseEntity<?> resendForgetPasswordToken(String email);
 
-	boolean verifyResetPasswordToken(String resetPasswordToken);
+	ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken);
 
-	boolean resetPassword(String currentPassword, String newPassword);
+	ResponseEntity<?> resetPassword(String currentPassword, String newPassword);
 
 }

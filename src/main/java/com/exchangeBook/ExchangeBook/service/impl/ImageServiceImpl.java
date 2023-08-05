@@ -1,20 +1,23 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.FileSystemUtils;
 
 import com.exchangeBook.ExchangeBook.entity.Image;
 import com.exchangeBook.ExchangeBook.exception.StorageException;
@@ -29,6 +32,12 @@ public class ImageServiceImpl implements ImageService {
 	@Autowired
 	ImageRepository imageRepository;
 
+//	@Autowired
+//	ImageMapper imageMapper;
+
+//	@Autowired
+//	FileStorageProperties properties;
+
 	private final Path rootLocation;
 
 	public ImageServiceImpl(FileStorageProperties properties) {
@@ -36,49 +45,72 @@ public class ImageServiceImpl implements ImageService {
 	}
 
 	@Override
-	public Image uploadImage(MultipartFile file) {
-		Image image = null;
+	public Image uploadImage(String base64Images) {
+		String[] imageBase64 = base64Images.split(",");
+		String contentType = imageBase64[0].split("[/;]")[1];
+		String dataBase64 = imageBase64[1];
+
+		String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10) + "."
+				+ contentType;
+		Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+
 		try {
-			if (file.isEmpty()) {
-				throw new StorageException("Failed to store empty file");
-			}
+			byte[] fileByte = Base64.getDecoder().decode(dataBase64);
 
-			String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10);
-			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
-			image = imageRepository.save(Image.builder().name(fileName).type(file.getContentType()).size(file.getSize())
-					.path(filePath.toString()).build());
+			ByteArrayInputStream bais = new ByteArrayInputStream(fileByte);
+			BufferedImage bufferImage = ImageIO.read(bais);
 
-			try (InputStream inputStream = file.getInputStream()) {
-				Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-			}
+			File file = new File(filePath.toString());
+			ImageIO.write(bufferImage, contentType, file);
 
+			Image image = imageRepository.save(Image.builder().name(fileName).contentType(contentType)
+					.size(file.length()).path(filePath.toString()).build());
+			return image;
 		} catch (IOException e) {
 			throw new StorageException("Failed to store file.", e);
 		}
 
-		return image;
+//		try {
+//			if (file.isEmpty()) {
+//				throw new StorageException("Failed to store empty file");
+//			}
+//
+//			String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10);
+//			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+//			image = imageRepository.save(Image.builder().name(fileName).type(file.getContentType()).size(file.getSize())
+//					.path(filePath.toString()).build());
+//
+//			try (InputStream inputStream = file.getInputStream()) {
+//				Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+//			}
+//
+//		} catch (IOException e) {
+//			throw new StorageException("Failed to store file.", e);
+//		}
 	}
 
 	@Override
-	public List<Image> uploadMultiImage(MultipartFile[] images) {
-		return Arrays.asList(images).stream().map((image) -> uploadImage(image)).collect(Collectors.toList());
+	public List<Image> uploadMultiImage(String[] base64Images) {
+		return Arrays.asList(base64Images).stream().map(image -> uploadImage(image)).collect(Collectors.toList());
 	}
 
 	@Override
-	public byte[] downloadImage(String fileName) {
+	public String downloadImage(String fileName) {
 		Image image = imageRepository.findByName(fileName);
 		String filePath = image.getPath();
 		byte[] images = null;
+		String data = "";
 		try {
 			images = Files.readAllBytes(new File(filePath).toPath());
-		} catch (IOException e) {
+			data = Base64.getEncoder().encodeToString(images);
+  		} catch (IOException e) {
 			throw new StorageFileNotFoundException("Could not read file: " + fileName, e);
 		}
-		return images;
+		return data;
 	}
 
 	@Override
-	public List<byte[]> downloadMultiImage(String[] imagesName) {
+	public List<String> downloadMultiImage(String[] imagesName) {
 		return Arrays.asList(imagesName).stream().map((imageName) -> downloadImage(imageName))
 				.collect(Collectors.toList());
 	}
@@ -95,4 +127,8 @@ public class ImageServiceImpl implements ImageService {
 		}
 	}
 
+	@Override
+	public void deleteAll() {
+		FileSystemUtils.deleteRecursively(rootLocation.toFile());
+	}
 }

@@ -1,22 +1,20 @@
 package com.exchangeBook.ExchangeBook.payload.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class PostRequest {
+@NoArgsConstructor
+@Builder
+public class ExchangeFormRequest {
 
-	private String title;
-	private String author;
-	private String description;
-	private Long category;
-	private String[] base64Images;
-	
-//		private User user;
-
+	private Long idPost;
+	private String address;
+	private String fullName;
+	private String phoneNumber;
 }

@@ -15,7 +15,7 @@ public class ImageMapper {
 
 	public ImageDto toImageDto(Image image) {
 
-		return ImageDto.builder().name(image.getName()).type(image.getType()).size(image.getSize())
+		return ImageDto.builder().name(image.getName()).contentType(image.getContentType())
 				.data(imageService.downloadImage(image.getName())).build();
 	}
 }

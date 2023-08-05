@@ -1,7 +1,6 @@
 package com.exchangeBook.ExchangeBook.entity;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.annotation.CreatedDate;

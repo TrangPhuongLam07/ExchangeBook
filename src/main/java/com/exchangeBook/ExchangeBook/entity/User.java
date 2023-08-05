@@ -53,10 +53,10 @@ public class User {
 	@Column(nullable = false)
 	private int point;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Image avatar;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Address address;
 	
 	@OneToOne(mappedBy = "user")

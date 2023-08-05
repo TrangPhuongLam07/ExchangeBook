@@ -2,20 +2,20 @@ package com.exchangeBook.ExchangeBook.service;
 
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.exchangeBook.ExchangeBook.entity.Image;
 
 public interface ImageService {
 
-	Image uploadImage(MultipartFile image);
+	Image uploadImage(String base64Images);
 
-	List<Image> uploadMultiImage(MultipartFile[] images);
+	List<Image> uploadMultiImage(String[] base64Images);
 
-	byte[] downloadImage(String imageName);
+	String downloadImage(String imageName);
 
-	List<byte[]> downloadMultiImage(String[] imagesName);
+	List<String> downloadMultiImage(String[] imagesName);
 
 	void deleteImage(String fileName);
-	
+
+	void deleteAll();
+
 }
