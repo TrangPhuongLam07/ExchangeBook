@@ -1,10 +1,11 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
 import java.io.UnsupportedEncodingException;
-import java.security.Principal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ import com.exchangeBook.ExchangeBook.entity.ForgetPasswordToken;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
+import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.repository.ConfirmationTokenRepository;
 import com.exchangeBook.ExchangeBook.repository.ForgetPasswordTokenRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
@@ -53,8 +55,7 @@ public class AuthServiceImpl implements AuthService {
 	JwtUtils jwtUtils;
 
 	@Override
-	public String registerNewUser(RegisterRequest registerRequest)
-			throws UnsupportedEncodingException, MessagingException {
+	public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
 
 		User user = User.builder().firstName(registerRequest.getFirstName()).lastName(registerRequest.getLastName())
 				.email(registerRequest.getEmail()).password(passwordEncoder.encode(registerRequest.getPassword()))
@@ -74,25 +75,29 @@ public class AuthServiceImpl implements AuthService {
 		content = content.replace("[[name]]", userFullname);
 		content = content.replace("[[URL]]", url);
 
-		emailSenderService.sendEmail(toAddress, subject, content);
-
-		return "Check your email to verify!";
+		try {
+			emailSenderService.sendEmail(toAddress, subject, content);
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			return ResponseEntity.internalServerError()
+					.body(new MessageResponse("Server Error: Sending verification email has failed!"));
+		}
+		return ResponseEntity.ok().body(new MessageResponse("Check your email to verify!"));
 	}
 
 	@Override
-	public boolean verifyConfirmationToken(String confirmationToken) {
+	public ResponseEntity<?> verifyConfirmationToken(String confirmationToken) {
 		ConfirmationToken token = confirmationTokenRepository.findByToken(confirmationToken);
 		if (token != null && !token.isExpired()) {
 			User user = userRepository.findById(token.getUser().getId()).get();
 			user.setStatus(EUserStatus.ACTIVATED);
 			userRepository.save(user);
-			return true;
+			return ResponseEntity.ok().body(new MessageResponse("Email verified successfully!"));
 		}
-		return false;
+		return ResponseEntity.badRequest().body(new MessageResponse("Token has expired!"));
 	}
 
 	@Override
-	public String resendVerificationEmail(String email) throws UnsupportedEncodingException, MessagingException {
+	public ResponseEntity<?> resendVerificationEmail(String email) {
 		User user = userRepository.findByEmail(email).get();
 		ConfirmationToken token = confirmationTokenRepository.findByUser(user);
 		token.renewToken();
@@ -108,13 +113,18 @@ public class AuthServiceImpl implements AuthService {
 		content = content.replace("[[name]]", userFullname);
 		content = content.replace("[[URL]]", url);
 
-		emailSenderService.sendEmail(toAddress, subject, content);
+		try {
+			emailSenderService.sendEmail(toAddress, subject, content);
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			return ResponseEntity.internalServerError()
+					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
 
-		return "Resend verification email successfully!";
+		}
+		return ResponseEntity.ok().body(new MessageResponse("Resend verification email successfully!"));
 	}
 
 	@Override
-	public ResponseCookie authenticateUser(LoginRequest loginRequest) {
+	public ResponseEntity<?> authenticateUser(LoginRequest loginRequest) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -122,13 +132,20 @@ public class AuthServiceImpl implements AuthService {
 		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 		ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-		return jwtCookie;
+		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+				.body(new MessageResponse("Login successfully!"));
 	}
 
 	@Override
-	public String sendForgetPasswordToken(String email) throws UnsupportedEncodingException, MessagingException {
+	public ResponseEntity<?> sendForgetPasswordToken(String email) {
 		User user = userRepository.findByEmail(email).get();
-		ForgetPasswordToken token = new ForgetPasswordToken(user);
+		ForgetPasswordToken token = forgetPasswordTokenRepository.findByUser(user);
+		if(token != null) {
+			token.renewToken();
+		} else {
+			token = new ForgetPasswordToken(user);
+		}
+//		ForgetPasswordToken token = new ForgetPasswordToken(user);
 		forgetPasswordTokenRepository.save(token);
 
 		String userFullname = user.getFirstName() + " " + user.getLastName();
@@ -140,22 +157,30 @@ public class AuthServiceImpl implements AuthService {
 		content = content.replace("[[name]]", userFullname);
 		content = content.replace("[[token]]", token.getToken());
 
-		emailSenderService.sendEmail(toAddress, subject, content);
+		try {
+			emailSenderService.sendEmail(toAddress, subject, content);
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			return ResponseEntity.internalServerError()
+					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
+		}
 
-		return "Send forget password token successfully!";
+		return ResponseEntity.ok().body(new MessageResponse("Send forget password token successfully!"));
 	}
 
 	@Override
-	public boolean verifyResetPasswordToken(String resetPasswordToken) {
+	public ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken) {
 		ForgetPasswordToken token = forgetPasswordTokenRepository.findByToken(resetPasswordToken);
 		if (token != null && !token.isExpired()) {
-			return true;
+			User user = token.getUser();
+			user.setPassword(passwordEncoder.encode(resetPasswordToken));
+			userRepository.save(user);
+			return ResponseEntity.ok().body(new MessageResponse("Reset password successfully!"));
 		}
-		return false;
+		return ResponseEntity.badRequest().body(new MessageResponse("Token has expired!"));
 	}
 
 	@Override
-	public String resendForgetPasswordToken(String email) throws UnsupportedEncodingException, MessagingException {
+	public ResponseEntity<?> resendForgetPasswordToken(String email) {
 		User user = userRepository.findByEmail(email).get();
 		ForgetPasswordToken token = forgetPasswordTokenRepository.findByUser(user);
 		token.renewToken();
@@ -170,13 +195,18 @@ public class AuthServiceImpl implements AuthService {
 		content = content.replace("[[name]]", userFullname);
 		content = content.replace("[[token]]", token.getToken());
 
-		emailSenderService.sendEmail(toAddress, subject, content);
+		try {
+			emailSenderService.sendEmail(toAddress, subject, content);
+		} catch (UnsupportedEncodingException | MessagingException e) {
+			return ResponseEntity.internalServerError()
+					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
+		}
 
-		return "Resend verification email successfully!";
+		return ResponseEntity.ok().body(new MessageResponse("Resend verification email successfully!"));
 	}
 
 	@Override
-	public boolean resetPassword(String currentPassword, String newPassword) {
+	public ResponseEntity<?> resetPassword(String currentPassword, String newPassword) {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userEmail = "";
 		if (principal.toString() != "anonymousUser") {
@@ -187,8 +217,8 @@ public class AuthServiceImpl implements AuthService {
 		if (passwordEncoder.matches(currentPassword, user.getPassword())) {
 			user.setPassword(passwordEncoder.encode(newPassword));
 			userRepository.save(user);
-			return true;
+			return ResponseEntity.ok().body(new MessageResponse("Reset password successfully!"));
 		}
-		return false;
+		return ResponseEntity.badRequest().body(new MessageResponse("Reset password failed!"));
 	}
 }

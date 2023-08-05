@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import com.exchangeBook.ExchangeBook.security.AuthEntryPoint;
 import com.exchangeBook.ExchangeBook.security.AuthRequestFilter;
@@ -62,10 +61,11 @@ public class WebSecurityConfig {
 				.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-						.requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/categories/**", "/api/users/**").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/categories/**", "/api/users/**")
+						.permitAll().requestMatchers("/api/admin/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
-						.requestMatchers("/api/auth/reset-password/**", "/api/auth/logout").authenticated()
-						.anyRequest().authenticated());
+						.requestMatchers("/api/auth/reset-password/**", "/api/auth/logout").authenticated().anyRequest()
+						.authenticated());
 		http.authenticationProvider(authenticationProvider());
 
 		http.addFilterBefore(authRequestFilter(), UsernamePasswordAuthenticationFilter.class);

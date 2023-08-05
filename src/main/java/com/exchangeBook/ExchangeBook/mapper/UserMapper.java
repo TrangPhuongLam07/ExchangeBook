@@ -1,15 +1,12 @@
 package com.exchangeBook.ExchangeBook.mapper;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.exchangeBook.ExchangeBook.dto.AddressDto;
 import com.exchangeBook.ExchangeBook.dto.ImageDto;
-import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.dto.UserDto;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;

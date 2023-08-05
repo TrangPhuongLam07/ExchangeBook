@@ -1,10 +1,6 @@
 package com.exchangeBook.ExchangeBook.payload.request;
 
-import java.util.List;
-
 import com.exchangeBook.ExchangeBook.dto.AddressDto;
-import com.exchangeBook.ExchangeBook.dto.ImageDto;
-import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.ERole;
 
 import lombok.AllArgsConstructor;
@@ -22,5 +18,6 @@ public class UserRequest {
 	private String lastName;
 	private String phoneNumber;
 	private ERole role;
-	private Long address;
+	private AddressDto address;
+	private String avatar;
 }

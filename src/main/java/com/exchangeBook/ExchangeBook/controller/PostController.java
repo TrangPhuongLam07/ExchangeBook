@@ -8,15 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.dto.PostDto;
+import com.exchangeBook.ExchangeBook.entity.EPostStatus;
 import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
+import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 import com.exchangeBook.ExchangeBook.service.PostService;
@@ -29,7 +30,6 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.Or;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 
 @RestController
-@RequestMapping("/api/posts")
 public class PostController {
 
 	@Autowired
@@ -41,20 +41,21 @@ public class PostController {
 	 * @body {title, author, category, description, status, images}
 	 * @access Login required
 	 */
-	@PostMapping
-	public ResponseEntity<?> createNewPost(@RequestPart PostRequest postRequest, @RequestPart MultipartFile[] images) {
-		PostDto dto = postService.createNewPost(postRequest, images);
+	@PostMapping("/api/posts")
+	public ResponseEntity<?> createNewPost(@RequestBody PostRequest postRequest) {
+		PostDto dto = postService.createNewPost(postRequest);
 		return ResponseEntity.ok().body(dto);
 	}
 
 	/**
-	 * @route GET /posts?page=1&size=10&sort=dateCreated&title=post&author&status=APPROVED&category=mystery
+	 * @route GET
+	 *        /posts?page=1&size=10&sort=dateCreated&title=post&author&status=APPROVED&category=mystery
 	 * @description Get all posts
 	 * @body
 	 * @access
 	 */
 	@Transactional
-	@GetMapping
+	@GetMapping("/api/posts")
 	public ResponseEntity<?> getAllPosts(@RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort,
 			@And({ @Spec(path = "title", params = "title", spec = Like.class),
@@ -67,12 +68,13 @@ public class PostController {
 
 	/**
 	 * @route GET /posts/search?page=1&size=10&sort=dateCreated&keyword=post
-	 * @description Search in posts when the given keyword match {title, author, description, category.name}
+	 * @description Search in posts when the given keyword match {title, author,
+	 *              description, category.name}
 	 * @body
 	 * @access
 	 */
 	@Transactional
-	@GetMapping("/search")
+	@GetMapping("/api/posts/search")
 	public ResponseEntity<?> searchInPosts(@RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sortBy,
 			@Or({ @Spec(path = "title", params = "keyword", spec = Like.class),
@@ -89,7 +91,7 @@ public class PostController {
 	 * @body
 	 * @access
 	 */
-	@GetMapping("/{id}")
+	@GetMapping("/api/posts/{id}")
 	public ResponseEntity<?> getOnePost(@PathVariable Long id) {
 		PostDetailResponse response = postService.getOnePost(id);
 		return ResponseEntity.ok().body(response);
@@ -101,9 +103,21 @@ public class PostController {
 	 * @body {title, author, category, description, status, images}
 	 * @access Login required
 	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<?> updateOnePost(@PathVariable Long id, @RequestPart PostRequest postRequest, @RequestPart MultipartFile[] images) {
-		PostDto dto = postService.updateOnePost(id, postRequest, images);
+	@PutMapping("/api/posts/{id}")
+	public ResponseEntity<?> updateOnePost(@PathVariable Long id, @RequestBody PostRequest postRequest) {
+		PostDto dto = postService.updateOnePost(id, postRequest);
+		return ResponseEntity.ok().body(dto);
+	}
+
+	/**
+	 * @route PUT /posts/:id
+	 * @description Update a post
+	 * @body {title, author, category, description, status, images}
+	 * @access Login required
+	 */
+	@PutMapping("/api/admin/posts/{id}")
+	public ResponseEntity<?> updateStatusPost(@PathVariable Long id, @RequestParam EPostStatus status) {
+		PostDto dto = postService.updateStatusPost(id, status);
 		return ResponseEntity.ok().body(dto);
 	}
 
@@ -113,7 +127,7 @@ public class PostController {
 	 * @body
 	 * @access Login required
 	 */
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/api/posts/{id}")
 	public ResponseEntity<?> deleteOnePost(@PathVariable Long id) {
 		PostDto dto = postService.deleteOnePost(id);
 		return ResponseEntity.ok().body(dto);

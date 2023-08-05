@@ -1,6 +1,5 @@
 package com.exchangeBook.ExchangeBook.security.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.exchangeBook.ExchangeBook.entity.EUserStatus;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,13 +32,15 @@ public class UserDetailsImpl implements UserDetails {
 
 	@JsonIgnore
 	private String password;
+	
+	private EUserStatus status;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public static UserDetailsImpl build(User user) {
 		List<GrantedAuthority> authorities = Arrays.asList(user.getRole()).stream()
 				.map(role -> new SimpleGrantedAuthority(role.name())).collect(Collectors.toList());
-		return new UserDetailsImpl(user.getId(), user.getEmail(), user.getPassword(), authorities);
+		return new UserDetailsImpl(user.getId(), user.getEmail(), user.getPassword(), user.getStatus(), authorities);
 	}
 
 	@Override
@@ -73,7 +75,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return this.status == EUserStatus.ACTIVATED;
 	}
 
 }

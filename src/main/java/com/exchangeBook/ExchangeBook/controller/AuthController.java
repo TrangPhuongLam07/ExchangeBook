@@ -1,7 +1,5 @@
 package com.exchangeBook.ExchangeBook.controller;
 
-import java.io.UnsupportedEncodingException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -22,7 +20,6 @@ import com.exchangeBook.ExchangeBook.repository.UserRepository;
 import com.exchangeBook.ExchangeBook.security.jwt.JwtUtils;
 import com.exchangeBook.ExchangeBook.service.AuthService;
 
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -37,7 +34,7 @@ public class AuthController {
 
 	@Autowired
 	JwtUtils jwtUtils;
-	
+
 	/**
 	 * @route POST /api/auth/register
 	 * @description User register new account
@@ -49,30 +46,19 @@ public class AuthController {
 		if (userRepository.existsByEmail(registerRequest.getEmail())) {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already existed"));
 		}
-		String message = "";
-
-		try {
-			message = authService.registerNewUser(registerRequest);
-		} catch (UnsupportedEncodingException | MessagingException e) {
-			return ResponseEntity.internalServerError()
-					.body(new MessageResponse("Server Error: Sending verification email has failed!"));
-		}
-		return ResponseEntity.ok().body(new MessageResponse(message));
+		return authService.registerNewUser(registerRequest);
 	}
 
 	/**
 	 * @route GET /api/auth/register/verify?token=abc123
 	 * @description This api is auto call and verify sent confirmation token in
-	 * email when user click to the VERIFY link
+	 *              email when user click to the VERIFY link
 	 * @param {token}
 	 * @access
 	 */
 	@GetMapping("/register/verify")
 	public ResponseEntity<?> verifyToken(@RequestParam String token) {
-		if (!authService.verifyConfirmationToken(token)) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Could not verify email!"));
-		}
-		return ResponseEntity.ok().body(new MessageResponse("Email verified successfully!"));
+		return authService.verifyConfirmationToken(token);
 	}
 
 	/**
@@ -83,14 +69,7 @@ public class AuthController {
 	 */
 	@GetMapping("/register/resend-email")
 	public ResponseEntity<?> resendVerificationEmail(@RequestParam(name = "email") String userEmail) {
-		String message = "";
-		try {
-			message = authService.resendVerificationEmail(userEmail);
-		} catch (UnsupportedEncodingException | MessagingException e) {
-			return ResponseEntity.internalServerError()
-					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
-		}
-		return ResponseEntity.ok().body(new MessageResponse(message));
+		return authService.resendVerificationEmail(userEmail);
 	}
 
 	/**
@@ -101,8 +80,7 @@ public class AuthController {
 	 */
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		ResponseCookie jwtCookie = authService.authenticateUser(loginRequest);
-		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString()).body(true);
+		return authService.authenticateUser(loginRequest);
 	}
 
 	/**
@@ -113,26 +91,19 @@ public class AuthController {
 	 */
 	@PutMapping("/forget-password")
 	public ResponseEntity<?> sendResetPasswordToken(@RequestParam(name = "email") String userEmail) {
-		String message = "";
-		try {
-			message = authService.sendForgetPasswordToken(userEmail);
-		} catch (UnsupportedEncodingException | MessagingException e) {
-			return ResponseEntity.internalServerError()
-					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
-		}
-		return ResponseEntity.ok().body(new MessageResponse(message));
+		return authService.sendForgetPasswordToken(userEmail);
 	}
 
 	/**
-	 * @route GET /api/auth/forget-password/verify?token=abc123
+	 * @route GET /api/auth/forget-password/verify?token=abc123&password=xyz789
 	 * @description User sends a resetting password token to the server to verify
-	 * @param {token}
+	 * @param {token, password}
 	 * @access
 	 */
 	@GetMapping("/forget-password/verify")
-	public ResponseEntity<?> verifyResetPasswordToken(@RequestParam String token) {
-		String message = String.valueOf(authService.verifyResetPasswordToken(token));
-		return ResponseEntity.ok().body(new MessageResponse(message));
+	public ResponseEntity<?> verifyResetPasswordToken(@RequestParam String token,
+			@RequestParam("password") String newPassword) {
+		return authService.verifyResetPasswordToken(token);
 	}
 
 	/**
@@ -143,14 +114,7 @@ public class AuthController {
 	 */
 	@GetMapping("/forget-password/resend-token")
 	public ResponseEntity<?> resendResetPasswordToken(@RequestParam(name = "email") String userEmail) {
-		String message = "";
-		try {
-			message = authService.resendForgetPasswordToken(userEmail);
-		} catch (UnsupportedEncodingException | MessagingException e) {
-			return ResponseEntity.internalServerError()
-					.body(new MessageResponse("Server Error: Resending verification email has failed!"));
-		}
-		return ResponseEntity.ok().body(new MessageResponse(message));
+		return authService.resendForgetPasswordToken(userEmail);
 	}
 
 	/**
@@ -161,8 +125,7 @@ public class AuthController {
 	 */
 	@PutMapping("/reset-password")
 	public ResponseEntity<?> resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword) {
-		String message = String.valueOf(authService.resetPassword(currentPassword, newPassword));
-		return ResponseEntity.ok().body(new MessageResponse(message));
+		return authService.resetPassword(currentPassword, newPassword);
 	}
 
 	/**

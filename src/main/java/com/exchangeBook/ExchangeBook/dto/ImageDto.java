@@ -1,7 +1,5 @@
 package com.exchangeBook.ExchangeBook.dto;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,9 +15,7 @@ public class ImageDto {
 	
 	private String name;
 	
-	private String type;
+	private String contentType;
 	
-	private long size;
-	
-	private byte[] data;
+	private String data;
 }
