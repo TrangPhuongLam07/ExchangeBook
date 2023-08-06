@@ -19,7 +19,7 @@ public interface AuthService {
 	
 	ResponseEntity<?> resendForgetPasswordToken(String email);
 
-	ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken);
+	ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken, String newPassword);
 
 	ResponseEntity<?> resetPassword(String currentPassword, String newPassword);
 

@@ -53,6 +53,14 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PostDto createNewPost(PostRequest postRequest) {
+		User user = null;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (principal.toString() != "anonymousUser") {
+			UserDetailsImpl userDetail = (UserDetailsImpl) principal;
+			user = userRepository.findById(userDetail.getId()).get();
+		}
+		
 		Category category = categoryRepository.findById(postRequest.getCategory()).get();
 
 		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
@@ -71,6 +79,7 @@ public class PostServiceImpl implements PostService {
 		post.setDatePosted(maxDateTime);
 		post.setCategory(category);
 		post.setImages(imageList);
+		post.setUser(user);
 		PostDto createdPost = postMapper.toPostDto(postRepository.save(post));
 
 		return createdPost;
@@ -114,7 +123,7 @@ public class PostServiceImpl implements PostService {
 		}
 
 		List<Image> oldImages = post.getImages();
-		oldImages.forEach(image -> imageService.deleteImage(image.getName()));
+		oldImages.forEach(image -> imageService.deleteImage(image.getId()));
 
 		Category category = categoryRepository.findById(postRequest.getCategory()).get();
 		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
@@ -140,8 +149,16 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PostDto deleteOnePost(Long id) {
-
 		Post post = postRepository.findById(id).get();
+		
+		User user = post.getUser();
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
+			return null;
+		}
+
 		post.setStatus(EPostStatus.HIDDEN);
 
 		PostDto deletedPost = postMapper.toPostDto(postRepository.save(post));

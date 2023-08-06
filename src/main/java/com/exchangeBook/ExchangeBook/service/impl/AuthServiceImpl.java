@@ -1,6 +1,9 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,16 +20,20 @@ import com.exchangeBook.ExchangeBook.entity.ConfirmationToken;
 import com.exchangeBook.ExchangeBook.entity.ERole;
 import com.exchangeBook.ExchangeBook.entity.EUserStatus;
 import com.exchangeBook.ExchangeBook.entity.ForgetPasswordToken;
+import com.exchangeBook.ExchangeBook.entity.Image;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
 import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
+import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
 import com.exchangeBook.ExchangeBook.repository.ConfirmationTokenRepository;
 import com.exchangeBook.ExchangeBook.repository.ForgetPasswordTokenRepository;
+import com.exchangeBook.ExchangeBook.repository.ImageRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
 import com.exchangeBook.ExchangeBook.security.jwt.JwtUtils;
 import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
 import com.exchangeBook.ExchangeBook.service.AuthService;
+import com.exchangeBook.ExchangeBook.service.ImageService;
 
 import jakarta.mail.MessagingException;
 
@@ -49,17 +56,39 @@ public class AuthServiceImpl implements AuthService {
 	ForgetPasswordTokenRepository forgetPasswordTokenRepository;
 
 	@Autowired
+	ImageRepository imageRepository;
+
+	@Autowired
+	ImageService imageService;
+	
+	@Autowired
 	EmailSenderService emailSenderService;
 
 	@Autowired
 	JwtUtils jwtUtils;
 
+	private final Path rootLocation;
+
+	public AuthServiceImpl(FileStorageProperties properties) {
+		this.rootLocation = Paths.get(properties.getUploadDir());
+	}
+
+	private final String DEFAULT_AVATAR_NAME = "default_user_avatar.png";
+
 	@Override
 	public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
 
+		String fileName = /* System.currentTimeMillis() + "_" + */DEFAULT_AVATAR_NAME;
+		String contentType = fileName.split("[.]")[1];
+		Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+		File file = new File(filePath.toString());
+		Image avatar = imageRepository.save(Image.builder().name(fileName).contentType(contentType).size(file.length())
+				.path(filePath.toString()).build());
+//		imageService.uploadImage(userRequest.getAvatar());
+
 		User user = User.builder().firstName(registerRequest.getFirstName()).lastName(registerRequest.getLastName())
 				.email(registerRequest.getEmail()).password(passwordEncoder.encode(registerRequest.getPassword()))
-				.role(ERole.ROLE_USER).status(EUserStatus.PENDING).point(0).build();
+				.role(ERole.ROLE_USER).status(EUserStatus.PENDING).point(0).avatar(avatar).build();
 		userRepository.save(user);
 
 		ConfirmationToken token = new ConfirmationToken(user);
@@ -140,7 +169,7 @@ public class AuthServiceImpl implements AuthService {
 	public ResponseEntity<?> sendForgetPasswordToken(String email) {
 		User user = userRepository.findByEmail(email).get();
 		ForgetPasswordToken token = forgetPasswordTokenRepository.findByUser(user);
-		if(token != null) {
+		if (token != null) {
 			token.renewToken();
 		} else {
 			token = new ForgetPasswordToken(user);
@@ -168,11 +197,11 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken) {
+	public ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken, String newPassword) {
 		ForgetPasswordToken token = forgetPasswordTokenRepository.findByToken(resetPasswordToken);
 		if (token != null && !token.isExpired()) {
 			User user = token.getUser();
-			user.setPassword(passwordEncoder.encode(resetPasswordToken));
+			user.setPassword(passwordEncoder.encode(newPassword));
 			userRepository.save(user);
 			return ResponseEntity.ok().body(new MessageResponse("Reset password successfully!"));
 		}

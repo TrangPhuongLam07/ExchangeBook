@@ -7,5 +7,5 @@ import com.exchangeBook.ExchangeBook.entity.Image;
 
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long>{
-	Image findByName(String name);
+//	Image findByName(String name);
 }

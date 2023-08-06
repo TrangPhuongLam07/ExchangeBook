@@ -10,12 +10,11 @@ public interface ImageService {
 
 	List<Image> uploadMultiImage(String[] base64Images);
 
-	String downloadImage(String imageName);
+	String downloadImage(Long id);
 
-	List<String> downloadMultiImage(String[] imagesName);
+	List<String> downloadMultiImage(Long[] imagesId);
 
-	void deleteImage(String fileName);
+	void deleteImage(Long id);
 
-	void deleteAll();
 
 }

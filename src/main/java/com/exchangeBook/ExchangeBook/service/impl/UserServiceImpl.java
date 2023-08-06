@@ -10,24 +10,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.exchangeBook.ExchangeBook.dto.AddressDto;
 import com.exchangeBook.ExchangeBook.entity.Address;
+import com.exchangeBook.ExchangeBook.entity.EPostStatus;
 import com.exchangeBook.ExchangeBook.entity.ERole;
 import com.exchangeBook.ExchangeBook.entity.EUserStatus;
 import com.exchangeBook.ExchangeBook.entity.Image;
+import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.entity.User;
+import com.exchangeBook.ExchangeBook.mapper.PostMapper;
 import com.exchangeBook.ExchangeBook.mapper.UserMapper;
 import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
+import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
 import com.exchangeBook.ExchangeBook.repository.AddressRepository;
 import com.exchangeBook.ExchangeBook.repository.ImageRepository;
+import com.exchangeBook.ExchangeBook.repository.PostRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
 import com.exchangeBook.ExchangeBook.security.jwt.JwtUtils;
 import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
@@ -53,18 +61,13 @@ public class UserServiceImpl implements UserService {
 	ImageRepository imageRepository;
 
 	@Autowired
+	PostRepository postRepository;
+
+	@Autowired
 	JwtUtils jwtUtils;
 
-//	@Autowired
-//	FileStorageProperties properties;
-//
-//	private final Path rootLocation = Paths.get(properties.getUploadDir());
-
-	private final Path rootLocation;
-
-	public UserServiceImpl(FileStorageProperties properties) {
-		this.rootLocation = Paths.get(properties.getUploadDir());
-	}
+	@Autowired
+	PostMapper postMapper;
 
 	private final String DEFAULT_AVATAR_NAME = "default_user_avatar.png";
 
@@ -92,49 +95,48 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserResponse updateOneUser(Long id, ERole role, EUserStatus status) {
 		User user = userRepository.findById(id).get();
-		if(role != null) {
+		if (role != null) {
 			user.setRole(role);
 		}
-		if(status != null) {
+		if (status != null) {
 			user.setStatus(status);
 		}
-		
+
 		user = userRepository.save(user);
 
 		UserResponse userResponse = userMapper.toUserResponse(user);
 
 		return userResponse;
 	}
-	
+
 	@Override
 	public UserResponse updateCurrentUser(UserRequest userRequest) {
 		User user = null;
-		
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Object principal = authentication.getPrincipal();
 		if (principal.toString() == "anonymousUser") {
 			return null;
 		}
-		
+
 		UserDetailsImpl userDetail = (UserDetailsImpl) principal;
 		user = userRepository.findById(userDetail.getId()).get();
-		
+
 		Image image = imageRepository.findById(user.getAvatar().getId()).get();
-		imageService.deleteImage(image.getName());
-		
-		addressRepository.deleteById(user.getAddress().getId());
-		
+		if (!image.getName().equals(DEFAULT_AVATAR_NAME)) {
+			imageService.deleteImage(image.getId());
+		}
+
+		if (user.getAddress() != null) {
+			addressRepository.deleteById(user.getAddress().getId());
+		}
+
 		Image avatar = null;
 		if (userRequest.getAvatar() != null) {
 			avatar = imageService.uploadImage(userRequest.getAvatar());
-		} else {
-			String fileName = DEFAULT_AVATAR_NAME;
-			String contentType = fileName.split("[.]")[1];
-			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
-			File file = new File(filePath.toString());
-			avatar = imageRepository.save(Image.builder().name(fileName).contentType(contentType).size(file.length())
-					.path(filePath.toString()).build());
+			user.setAvatar(avatar);
 		}
+
 		AddressDto addressDto = userRequest.getAddress();
 
 		Address address = Address.builder().province(addressDto.getProvince()).district(addressDto.getDistrict())
@@ -146,7 +148,6 @@ public class UserServiceImpl implements UserService {
 		user.setPhoneNumber(userRequest.getPhoneNumber());
 		user.setRole(userRequest.getRole() != null ? userRequest.getRole() : ERole.ROLE_USER);
 		user.setAddress(address);
-		user.setAvatar(avatar);
 
 		user = userRepository.save(user);
 
@@ -175,6 +176,48 @@ public class UserServiceImpl implements UserService {
 			return userMapper.toUserDetailResponse(user);
 		}
 		return null;
+	}
+
+	@Override
+	public PostPagingResponse getCurrentUserPosts(Integer page, Integer size, String sortBy, EPostStatus status) {
+		User user = null;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (principal.toString() == "anonymousUser") {
+			return null;
+		}
+		UserDetailsImpl userDetail = (UserDetailsImpl) principal;
+		user = userRepository.findById(userDetail.getId()).get();
+
+		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
+		Page<Post> paged = postRepository.findAllByUserIdAndStatusLike(user.getId(), status, paging);
+
+		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
+				.collect(Collectors.toList());
+
+		PostPagingResponse postPagingResponse = new PostPagingResponse();
+		postPagingResponse.setTotalItems(paged.getTotalElements());
+		postPagingResponse.setTotalPages(paged.getTotalPages());
+		postPagingResponse.setPostsResponses(postsResponses);
+
+		return postPagingResponse;
+	}
+
+	@Override
+	public PostPagingResponse getOneUserPosts(Long id, Integer page, Integer size, String sortBy) {
+		User user = userRepository.findById(id).get();
+		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
+		Page<Post> paged = postRepository.findAllByUserId(user.getId(), paging);
+
+		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
+				.collect(Collectors.toList());
+
+		PostPagingResponse postPagingResponse = new PostPagingResponse();
+		postPagingResponse.setTotalItems(paged.getTotalElements());
+		postPagingResponse.setTotalPages(paged.getTotalPages());
+		postPagingResponse.setPostsResponses(postsResponses);
+
+		return postPagingResponse;
 	}
 
 }

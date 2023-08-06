@@ -96,14 +96,15 @@ public class AuthController {
 
 	/**
 	 * @route GET /api/auth/forget-password/verify?token=abc123&password=xyz789
-	 * @description User sends a resetting password token to the server to verify
+	 * @description User sends a resetting password token and new password to the
+	 *              server to verify and update new password if the token is valid
 	 * @param {token, password}
 	 * @access
 	 */
 	@GetMapping("/forget-password/verify")
 	public ResponseEntity<?> verifyResetPasswordToken(@RequestParam String token,
 			@RequestParam("password") String newPassword) {
-		return authService.verifyResetPasswordToken(token);
+		return authService.verifyResetPasswordToken(token, newPassword);
 	}
 
 	/**
