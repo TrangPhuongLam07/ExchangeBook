@@ -95,8 +95,8 @@ public class ImageServiceImpl implements ImageService {
 	}
 
 	@Override
-	public String downloadImage(String fileName) {
-		Image image = imageRepository.findByName(fileName);
+	public String downloadImage(Long id) {
+		Image image = imageRepository.findById(id).get();
 		String filePath = image.getPath();
 		byte[] images = null;
 		String data = "";
@@ -104,22 +104,22 @@ public class ImageServiceImpl implements ImageService {
 			images = Files.readAllBytes(new File(filePath).toPath());
 			data = Base64.getEncoder().encodeToString(images);
   		} catch (IOException e) {
-			throw new StorageFileNotFoundException("Could not read file: " + fileName, e);
+			throw new StorageFileNotFoundException("Could not read file: " + id, e);
 		}
 		return data;
 	}
 
 	@Override
-	public List<String> downloadMultiImage(String[] imagesName) {
-		return Arrays.asList(imagesName).stream().map((imageName) -> downloadImage(imageName))
+	public List<String> downloadMultiImage(Long[] imagesId) {
+		return Arrays.asList(imagesId).stream().map((imageId) -> downloadImage(imageId))
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void deleteImage(String fileName) {
+	public void deleteImage(Long id) {
 		try {
-			Image image = imageRepository.findByName(fileName);
-			Path file = rootLocation.resolve(fileName);
+			Image image = imageRepository.findById(id).get();
+			Path file = rootLocation.resolve(image.getName());
 			Files.deleteIfExists(file);
 			imageRepository.deleteById(image.getId());
 		} catch (IOException e) {
@@ -127,8 +127,4 @@ public class ImageServiceImpl implements ImageService {
 		}
 	}
 
-	@Override
-	public void deleteAll() {
-		FileSystemUtils.deleteRecursively(rootLocation.toFile());
-	}
 }
