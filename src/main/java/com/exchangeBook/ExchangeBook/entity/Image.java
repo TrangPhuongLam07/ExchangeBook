@@ -28,7 +28,7 @@ public class Image {
 	
 	private long size;
 	
-	@Column(nullable = false, unique =  true)
+	@Column(nullable = false)
 	private String path;
 	
 }

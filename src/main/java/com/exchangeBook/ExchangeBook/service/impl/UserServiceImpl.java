@@ -220,4 +220,49 @@ public class UserServiceImpl implements UserService {
 		return postPagingResponse;
 	}
 
+	@Override
+	public boolean checkPoint() {
+//		User user = userRepository.findById(userId).get();
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userEmail = "";
+		if (principal.toString() != "anonymousUser") {
+			userEmail = ((UserDetailsImpl) principal).getEmail();
+		}
+		User user = userRepository.findByEmail(userEmail).get();
+		if(user.getPoint() > 0)
+			return true;
+		return false;
+	}
+
+	@Override
+	public int returnPoint() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userEmail = "";
+		if (principal.toString() != "anonymousUser") {
+			userEmail = ((UserDetailsImpl) principal).getEmail();
+		}
+		User user = userRepository.findByEmail(userEmail).get();
+		return user.getPoint();
+	}
+
+	@Override
+	public boolean acceptThePost(Long idPost) {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String userEmail = "";
+		if (principal.toString() != "anonymousUser") {
+			userEmail = ((UserDetailsImpl) principal).getEmail();
+		}
+		User user = userRepository.findByEmail(userEmail).get();
+		User postOwner;
+		if(user.getRole()==ERole.ROLE_ADMIN){
+			Post post = postRepository.findById(idPost).get();
+			post.setStatus(EPostStatus.APPROVED);
+			postRepository.save(post);
+			postOwner = post.getUser();
+			postOwner.setPoint(postOwner.getPoint()+1);
+			userRepository.save(postOwner);
+			return true;
+		}
+		return false;
+	}
 }

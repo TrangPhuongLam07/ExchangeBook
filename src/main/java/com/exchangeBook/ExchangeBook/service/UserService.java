@@ -26,4 +26,7 @@ public interface UserService {
 	UserResponse updateCurrentUser(UserRequest userRequest);
 
 	UserResponse deleteOneUser(Long id);
+	boolean checkPoint();
+	int returnPoint();
+	boolean acceptThePost(Long idPost);
 }
