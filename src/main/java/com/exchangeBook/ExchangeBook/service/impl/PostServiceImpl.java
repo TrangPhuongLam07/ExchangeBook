@@ -25,7 +25,7 @@ import com.exchangeBook.ExchangeBook.mapper.PostMapper;
 import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
 import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
-import com.exchangeBook.ExchangeBook.payload.response.PostsResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 import com.exchangeBook.ExchangeBook.repository.PostRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
@@ -90,7 +90,7 @@ public class PostServiceImpl implements PostService {
 		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
 		Page<Post> paged = postRepository.findAll(spec, paging);
 
-		List<PostsResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
+		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
 				.collect(Collectors.toList());
 
 		PostPagingResponse postPagingResponse = new PostPagingResponse();

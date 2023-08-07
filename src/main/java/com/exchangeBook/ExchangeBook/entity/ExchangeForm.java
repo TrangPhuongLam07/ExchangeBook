@@ -29,8 +29,9 @@ public class ExchangeForm {
 	@MapsId("id_user")
 	@JoinColumn(name="id_user")
 	private User user;
-	
-	private String fullName;
+
 	private String address;
+	private String fullName;
+	private String phoneNumber;
 	private LocalDateTime dateCreated;
 }

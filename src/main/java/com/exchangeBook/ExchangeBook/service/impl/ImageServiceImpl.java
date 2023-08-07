@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import com.exchangeBook.ExchangeBook.entity.Image;
 import com.exchangeBook.ExchangeBook.exception.StorageException;
@@ -30,12 +31,6 @@ public class ImageServiceImpl implements ImageService {
 
 	@Autowired
 	ImageRepository imageRepository;
-
-//	@Autowired
-//	ImageMapper imageMapper;
-
-//	@Autowired
-//	FileStorageProperties properties;
 
 	private final Path rootLocation;
 
@@ -68,24 +63,6 @@ public class ImageServiceImpl implements ImageService {
 		} catch (IOException e) {
 			throw new StorageException("Failed to store file.", e);
 		}
-
-//		try {
-//			if (file.isEmpty()) {
-//				throw new StorageException("Failed to store empty file");
-//			}
-//
-//			String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10);
-//			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
-//			image = imageRepository.save(Image.builder().name(fileName).type(file.getContentType()).size(file.getSize())
-//					.path(filePath.toString()).build());
-//
-//			try (InputStream inputStream = file.getInputStream()) {
-//				Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-//			}
-//
-//		} catch (IOException e) {
-//			throw new StorageException("Failed to store file.", e);
-//		}
 	}
 
 	@Override

@@ -15,5 +15,5 @@ public interface ImageService {
 	List<String> downloadMultiImage(Long[] imagesId);
 
 	void deleteImage(Long id);
-	
+
 }

@@ -12,7 +12,7 @@ import com.exchangeBook.ExchangeBook.dto.ImageDto;
 import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
-import com.exchangeBook.ExchangeBook.payload.response.PostsResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 
 @Component
@@ -56,13 +56,13 @@ public class PostMapper {
 		return postDetailResponse;
 	}
 
-	public PostsResponse toPostsResponse(Post post) {
+	public PostResponse toPostsResponse(Post post) {
 
 		ImageDto imageDto = imageMapper.toImageDto(post.getImages().get(0));
 
 		CategoryDto category = categoryMapper.toCategoryDto(post.getCategory());
 
-		PostsResponse postsResponse = PostsResponse.builder().id(post.getId()).title(post.getTitle())
+		PostResponse postsResponse = PostResponse.builder().id(post.getId()).title(post.getTitle())
 				.author(post.getAuthor()).description(post.getDescription()).status(post.getStatus().toString())
 				.dateCreated(post.getDateCreated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
 				.dateUpdated(post.getDateUpdated().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())

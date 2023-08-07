@@ -1,7 +1,5 @@
 package com.exchangeBook.ExchangeBook.payload.response;
 
-import java.util.List;
-
 import com.exchangeBook.ExchangeBook.dto.CategoryDto;
 import com.exchangeBook.ExchangeBook.dto.ImageDto;
 
@@ -16,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostsResponse {
+public class PostResponse {
 
 	private Long id;
 	private String title;

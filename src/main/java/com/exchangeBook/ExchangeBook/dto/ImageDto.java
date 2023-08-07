@@ -12,10 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ImageDto {
-
 	private String name;
-
 	private String contentType;
-
 	private String data;
 }

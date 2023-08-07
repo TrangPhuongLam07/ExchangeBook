@@ -24,7 +24,7 @@ import com.exchangeBook.ExchangeBook.mapper.PostMapper;
 import com.exchangeBook.ExchangeBook.mapper.UserMapper;
 import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
 import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
-import com.exchangeBook.ExchangeBook.payload.response.PostsResponse;
+import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserPagingResponse;
 import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
 		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
 		Page<Post> paged = postRepository.findAllByUserIdAndStatusLike(user.getId(), status, paging);
 
-		List<PostsResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
+		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
 				.collect(Collectors.toList());
 
 		PostPagingResponse postPagingResponse = new PostPagingResponse();
@@ -204,7 +204,7 @@ public class UserServiceImpl implements UserService {
 		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
 		Page<Post> paged = postRepository.findAllByUserId(user.getId(), paging);
 
-		List<PostsResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
+		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
 				.collect(Collectors.toList());
 
 		PostPagingResponse postPagingResponse = new PostPagingResponse();
@@ -260,5 +260,4 @@ public class UserServiceImpl implements UserService {
 		}
 		return false;
 	}
-
 }
