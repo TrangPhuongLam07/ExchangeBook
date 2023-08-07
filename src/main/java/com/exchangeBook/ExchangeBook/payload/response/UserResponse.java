@@ -1,11 +1,7 @@
 package com.exchangeBook.ExchangeBook.payload.response;
 
-import java.util.List;
-
 import com.exchangeBook.ExchangeBook.dto.AddressDto;
-import com.exchangeBook.ExchangeBook.dto.CategoryDto;
 import com.exchangeBook.ExchangeBook.dto.ImageDto;
-import com.exchangeBook.ExchangeBook.dto.PostDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UsersResponse {
+public class UserResponse {
 	private Long id;
 
 	private String email;

@@ -11,14 +11,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Category;
 import com.exchangeBook.ExchangeBook.entity.EPostStatus;
 import com.exchangeBook.ExchangeBook.entity.Image;
 import com.exchangeBook.ExchangeBook.entity.Post;
+import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.mapper.PostMapper;
 import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
 import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
@@ -26,6 +28,8 @@ import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostsResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 import com.exchangeBook.ExchangeBook.repository.PostRepository;
+import com.exchangeBook.ExchangeBook.repository.UserRepository;
+import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 import com.exchangeBook.ExchangeBook.service.PostService;
 
@@ -42,14 +46,24 @@ public class PostServiceImpl implements PostService {
 	ImageService imageService;
 
 	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
 	PostMapper postMapper;
 
 	@Override
+	public PostDto createNewPost(PostRequest postRequest) {
+		User user = null;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (principal.toString() != "anonymousUser") {
+			UserDetailsImpl userDetail = (UserDetailsImpl) principal;
+			user = userRepository.findById(userDetail.getId()).get();
+		}
 
-	public PostDto createNewPost(PostRequest postRequest, MultipartFile[] images) {
 		Category category = categoryRepository.findById(postRequest.getCategory()).get();
 
-		List<Image> imageList = imageService.uploadMultiImage(images);
+		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
 
 		String strMaxDatetime = "9999-12-31 23:59:59.999999";
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -65,6 +79,7 @@ public class PostServiceImpl implements PostService {
 		post.setDatePosted(maxDateTime);
 		post.setCategory(category);
 		post.setImages(imageList);
+		post.setUser(user);
 		PostDto createdPost = postMapper.toPostDto(postRepository.save(post));
 
 		return createdPost;
@@ -96,13 +111,22 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDto updateOnePost(Long id, PostRequest postRequest, MultipartFile[] images) {
-		Category category = categoryRepository.findById(postRequest.getCategory()).get();
-		List<Image> imageList = imageService.uploadMultiImage(images);
+	public PostDto updateOnePost(Long id, PostRequest postRequest) {
 		Post post = postRepository.findById(id).get();
 
-		if (post == null)
+		User user = userRepository.findById(post.getUser().getId()).get();
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
 			return null;
+		}
+
+		List<Image> oldImages = post.getImages();
+		oldImages.forEach(image -> imageService.deleteImage(image.getId()));
+
+		Category category = categoryRepository.findById(postRequest.getCategory()).get();
+		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
 
 		post.setTitle(postRequest.getTitle());
 		post.setAuthor(postRequest.getAuthor());
@@ -117,14 +141,28 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public PostDto deleteOnePost(Long id) {
-
+	public PostDto updateStatusPost(Long id, EPostStatus status) {
 		Post post = postRepository.findById(id).get();
+		post.setStatus(status);
+		return postMapper.toPostDto(post);
+	}
+
+	@Override
+	public PostDto deleteOnePost(Long id) {
+		Post post = postRepository.findById(id).get();
+
+		User user = post.getUser();
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Object principal = authentication.getPrincipal();
+		if (((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
+			return null;
+		}
+
 		post.setStatus(EPostStatus.HIDDEN);
 
 		PostDto deletedPost = postMapper.toPostDto(postRepository.save(post));
 
 		return deletedPost;
 	}
-
 }

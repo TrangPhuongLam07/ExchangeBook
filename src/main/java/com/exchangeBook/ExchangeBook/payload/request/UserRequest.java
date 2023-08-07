@@ -1,5 +1,6 @@
 package com.exchangeBook.ExchangeBook.payload.request;
 
+import com.exchangeBook.ExchangeBook.dto.AddressDto;
 import com.exchangeBook.ExchangeBook.entity.ERole;
 
 import lombok.AllArgsConstructor;
@@ -12,11 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRequest {
-
-	private String email;
 	private String firstName;
 	private String lastName;
 	private String phoneNumber;
 	private ERole role;
-	private Long address;
+	private AddressDto address;
+	private String avatar;
 }

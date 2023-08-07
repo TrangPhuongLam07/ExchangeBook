@@ -1,7 +1,5 @@
 package com.exchangeBook.ExchangeBook.entity;
 
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,11 +24,11 @@ public class Image {
 
 	private String name;
 	
-	private String type;
+	private String contentType;
 	
 	private long size;
 	
-	@Column(nullable = false, unique =  true)
+	@Column(nullable = false)
 	private String path;
 	
 }

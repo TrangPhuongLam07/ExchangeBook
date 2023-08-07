@@ -13,7 +13,7 @@ import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.dto.UserDto;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.payload.response.UserDetailResponse;
-import com.exchangeBook.ExchangeBook.payload.response.UsersResponse;
+import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 
 @Component
 public class UserMapper {
@@ -38,21 +38,21 @@ public class UserMapper {
 
 		Optional<ImageDto> avatar = Optional.ofNullable(imageMapper.toImageDto(user.getAvatar()));
 		Optional<AddressDto> address = Optional.ofNullable(addressMapper.toAddressDto(user.getAddress()));
-		List<PostDto> posts = user.getPosts().stream().map(post -> postMapper.toPostDto(post))
-				.collect(Collectors.toList());
+//		List<PostDto> posts = user.getPosts().stream().map(post -> postMapper.toPostDto(post))
+//				.collect(Collectors.toList());
 
 		UserDetailResponse userDetailResponse = UserDetailResponse.builder().id(user.getId()).email(user.getEmail())
 				.firstName(user.getFirstName()).lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
-				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).posts(posts).build();
+				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).build();
 		return userDetailResponse;
 	}
 
-	public UsersResponse toUsersResponse(User user) {
+	public UserResponse toUserResponse(User user) {
 
 		Optional<ImageDto> avatar = Optional.ofNullable(imageMapper.toImageDto(user.getAvatar()));
 		Optional<AddressDto> address = Optional.ofNullable(addressMapper.toAddressDto(user.getAddress()));
 
-		UsersResponse usersResponse = UsersResponse.builder().id(user.getId()).email(user.getEmail())
+		UserResponse usersResponse = UserResponse.builder().id(user.getId()).email(user.getEmail())
 				.firstName(user.getFirstName()).lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
 				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).build();
 		return usersResponse;

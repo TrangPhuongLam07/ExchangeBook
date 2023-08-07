@@ -14,11 +14,9 @@ public class PostRequest {
 	private String title;
 	private String author;
 	private String description;
-	private String status;
 	private Long category;
-
-//	private MultipartFile[] images;
-
+	private String[] base64Images;
+	
 //		private User user;
 
 }

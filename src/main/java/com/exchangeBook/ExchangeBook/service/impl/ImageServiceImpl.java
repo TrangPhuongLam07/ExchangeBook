@@ -1,20 +1,27 @@
 package com.exchangeBook.ExchangeBook.service.impl;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.exchangeBook.ExchangeBook.entity.Image;
+import com.exchangeBook.ExchangeBook.exception.StorageException;
+import com.exchangeBook.ExchangeBook.exception.StorageFileNotFoundException;
+import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
 import com.exchangeBook.ExchangeBook.repository.ImageRepository;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 
@@ -24,61 +31,97 @@ public class ImageServiceImpl implements ImageService {
 	@Autowired
 	ImageRepository imageRepository;
 
-	@Value("${file.upload-dir}")
-	private String uploadDir;
+//	@Autowired
+//	ImageMapper imageMapper;
+
+//	@Autowired
+//	FileStorageProperties properties;
+
+	private final Path rootLocation;
+
+	public ImageServiceImpl(FileStorageProperties properties) {
+		this.rootLocation = Paths.get(properties.getUploadDir());
+	}
 
 	@Override
-	public Image uploadImage(MultipartFile file) {
-		// Get file name
-		String fileName = (new Date().getTime() / 1000) + file.getOriginalFilename();
-		String filePath = uploadDir + fileName;
+	public Image uploadImage(String base64Images) {
+		String[] imageBase64 = base64Images.split(",");
+		String contentType = imageBase64[0].split("[/;]")[1];
+		String dataBase64 = imageBase64[1];
 
-		// Create the directory if it does not exist.
-		File directory = new File(uploadDir);
-		if (!directory.exists()) {
-			directory.mkdirs();
-		}
-		// Save the file to the directory.
+		String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10) + "."
+				+ contentType;
+		Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+
 		try {
-			file.transferTo(new File(filePath));
-			return imageRepository.save(Image.builder().name(file.getOriginalFilename()).type(file.getContentType())
-					.size(file.getSize()).path(filePath).build());
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			byte[] fileByte = Base64.getDecoder().decode(dataBase64);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(fileByte);
+			BufferedImage bufferImage = ImageIO.read(bais);
+
+			File file = new File(filePath.toString());
+			ImageIO.write(bufferImage, contentType, file);
+
+			Image image = imageRepository.save(Image.builder().name(fileName).contentType(contentType)
+					.size(file.length()).path(filePath.toString()).build());
+			return image;
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new StorageException("Failed to store file.", e);
 		}
-		return null;
+
+//		try {
+//			if (file.isEmpty()) {
+//				throw new StorageException("Failed to store empty file");
+//			}
+//
+//			String fileName = System.currentTimeMillis() + "_" + RandomStringUtils.randomAlphanumeric(10);
+//			Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
+//			image = imageRepository.save(Image.builder().name(fileName).type(file.getContentType()).size(file.getSize())
+//					.path(filePath.toString()).build());
+//
+//			try (InputStream inputStream = file.getInputStream()) {
+//				Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+//			}
+//
+//		} catch (IOException e) {
+//			throw new StorageException("Failed to store file.", e);
+//		}
 	}
 
 	@Override
-	public List<Image> uploadMultiImage(MultipartFile[] images) {
-		return Arrays.asList(images).stream().map((image) -> uploadImage(image)).collect(Collectors.toList());
+	public List<Image> uploadMultiImage(String[] base64Images) {
+		return Arrays.asList(base64Images).stream().map(image -> uploadImage(image)).collect(Collectors.toList());
 	}
 
 	@Override
-	public byte[] downloadImage(String fileName) {
-		Image image = imageRepository.findByName(fileName);
+	public String downloadImage(Long id) {
+		Image image = imageRepository.findById(id).get();
+		String filePath = image.getPath();
+		byte[] images = null;
+		String data = "";
 		try {
-			return Files.readAllBytes(new File(image.getPath()).toPath());
+			images = Files.readAllBytes(new File(filePath).toPath());
+			data = Base64.getEncoder().encodeToString(images);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new StorageFileNotFoundException("Could not read file: " + id, e);
 		}
-		return null;
+		return data;
 	}
 
 	@Override
-	public List<byte[]> downloadMultiImage(String[] imagesName) {
-		return Arrays.asList(imagesName).stream().map(this::downloadImage).collect(Collectors.toList());
+	public List<String> downloadMultiImage(Long[] imagesId) {
+		return Arrays.asList(imagesId).stream().map((imageId) -> downloadImage(imageId)).collect(Collectors.toList());
 	}
 
 	@Override
-	public void deleteImage(String fileName) {
+	public void deleteImage(Long id) {
 		try {
-			Files.delete(Paths.get(uploadDir).resolve(fileName));
+			Image image = imageRepository.findById(id).get();
+			Path file = rootLocation.resolve(image.getName());
+			Files.deleteIfExists(file);
+			imageRepository.deleteById(image.getId());
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new StorageException("Failed to delete file");
 		}
 	}
-
 }
