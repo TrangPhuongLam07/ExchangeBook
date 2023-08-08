@@ -78,13 +78,12 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
 
-		String fileName = /* System.currentTimeMillis() + "_" + */DEFAULT_AVATAR_NAME;
+		String fileName = DEFAULT_AVATAR_NAME;
 		String contentType = fileName.split("[.]")[1];
 		Path filePath = rootLocation.resolve(Paths.get(fileName)).normalize().toAbsolutePath();
 		File file = new File(filePath.toString());
 		Image avatar = imageRepository.save(Image.builder().name(fileName).contentType(contentType).size(file.length())
 				.path(filePath.toString()).build());
-//		imageService.uploadImage(userRequest.getAvatar());
 
 		User user = User.builder().firstName(registerRequest.getFirstName()).lastName(registerRequest.getLastName())
 				.email(registerRequest.getEmail()).password(passwordEncoder.encode(registerRequest.getPassword()))

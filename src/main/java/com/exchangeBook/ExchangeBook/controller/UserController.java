@@ -29,8 +29,7 @@ public class UserController {
 	@GetMapping("/api/users")
 	public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "10") Integer size) {
-		UserPagingResponse userPagingResponse = userService.getAllUsers(page, size);
-		return ResponseEntity.ok().body(userPagingResponse);
+		return userService.getAllUsers(page, size);
 	}
 
 	/**
@@ -40,8 +39,7 @@ public class UserController {
 	 */
 	@GetMapping("/api/users/me")
 	public ResponseEntity<?> getCurrentUser() {
-		UserDetailResponse userResponse = userService.getCurrentUser();
-		return ResponseEntity.ok().body(userResponse);
+		return userService.getCurrentUser();
 	}
 
 	/**
@@ -54,21 +52,19 @@ public class UserController {
 	public ResponseEntity<?> getCurrentUserPosts(@RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort,
 			@RequestParam(required = false) EPostStatus status) {
-		PostPagingResponse userResponse = userService.getCurrentUserPosts(page, size, sort, status);
-		return ResponseEntity.ok().body(userResponse);
+		return userService.getCurrentUserPosts(page, size, sort, status);
 	}
 
 	/**
 	 * @route PUT /api/users/me
 	 * @description Update current user
-	 * @body { firstName, lastName, phoneNumber, address:{province, district,
-	 *       ward, detail}, avatar}
+	 * @body { firstName, lastName, phoneNumber, address:{province, district, ward,
+	 *       detail}, avatar}
 	 * @access Login required
 	 */
 	@PutMapping("/api/users/me")
 	public ResponseEntity<?> updateCurentUser(@RequestBody UserRequest userRequest) {
-		UserResponse userResponse = userService.updateCurrentUser(userRequest);
-		return ResponseEntity.ok().body(userResponse);
+		return userService.updateCurrentUser(userRequest);
 	}
 
 	/**
@@ -79,8 +75,7 @@ public class UserController {
 	 */
 	@GetMapping("/api/users/{id}")
 	public ResponseEntity<?> getOneUser(@PathVariable Long id) {
-		UserDetailResponse userDetailResponse = userService.getOneUser(id);
-		return ResponseEntity.ok().body(userDetailResponse);
+		return userService.getOneUser(id);
 	}
 
 	/**
@@ -88,14 +83,12 @@ public class UserController {
 	 * @description Get one user's posts
 	 * @var {id}
 	 * @params {page, size, sort}
-	 * @access 
+	 * @access
 	 */
 	@GetMapping("/api/users/{id}/posts")
 	public ResponseEntity<?> getOneUserPosts(@PathVariable Long id, @RequestParam(defaultValue = "1") Integer page,
-			@RequestParam(defaultValue = "10") Integer size,
-			@RequestParam(defaultValue = "dateCreated") String sort) {
-		PostPagingResponse userResponse = userService.getOneUserPosts(id, page, size, sort);
-		return ResponseEntity.ok().body(userResponse);
+			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort) {
+		return userService.getOneUserPosts(id, page, size, sort);
 	}
 
 	/**
@@ -107,8 +100,7 @@ public class UserController {
 	@PutMapping("/api/admin/users/{id}")
 	public ResponseEntity<?> updateOneUser(@PathVariable Long id, @RequestParam(required = false) ERole role,
 			@RequestParam(required = false) EUserStatus status) {
-		UserResponse userResponse = userService.updateOneUser(id, role, status);
-		return ResponseEntity.ok().body(userResponse);
+		return userService.updateOneUser(id, role, status);
 	}
 
 	/**
@@ -119,8 +111,7 @@ public class UserController {
 	 */
 	@DeleteMapping("/api/users/{id}")
 	public ResponseEntity<?> deleteOneUser(@PathVariable Long id) {
-		UserResponse userResponse = userService.deleteOneUser(id);
-		return ResponseEntity.ok().body(userResponse);
+		return userService.deleteOneUser(id);
 	}
 	@PutMapping("/api/accept-post/{idPost}")
 	public boolean acceptThePost(@PathVariable("idPost") Long idPost){
