@@ -41,8 +41,7 @@ public class PostController {
 	 */
 	@PostMapping("/api/posts")
 	public ResponseEntity<?> createNewPost(@RequestBody PostRequest postRequest) {
-		PostDto dto = postService.createNewPost(postRequest);
-		return ResponseEntity.ok().body(dto);
+		return postService.createNewPost(postRequest);
 	}
 
 	/**
@@ -60,8 +59,7 @@ public class PostController {
 					@Spec(path = "author", params = "author", spec = Like.class),
 					@Spec(path = "status", constVal = "APPROVED", spec = Equal.class),
 					@Spec(path = "category.name", params = "category", spec = Like.class) }) Specification<Post> postSpec) {
-		PostPagingResponse postPagingResponse = postService.getAllPosts(page, size, sort, postSpec);
-		return ResponseEntity.ok().body(postPagingResponse);
+		return postService.getAllPosts(page, size, sort, postSpec);
 	}
 
 	/**
@@ -79,8 +77,7 @@ public class PostController {
 					@Spec(path = "author", params = "author", spec = Like.class),
 					@Spec(path = "status", params = "status", spec = Equal.class),
 					@Spec(path = "category.name", params = "category", spec = Like.class) }) Specification<Post> postSpec) {
-		PostPagingResponse postPagingResponse = postService.getAllPosts(page, size, sort, postSpec);
-		return ResponseEntity.ok().body(postPagingResponse);
+		return postService.getAllPosts(page, size, sort, postSpec);
 	}
 
 	/**
@@ -99,8 +96,7 @@ public class PostController {
 					@Spec(path = "description", params = "keyword", spec = Like.class),
 					@Spec(path = "status", constVal = "APPROVED", spec = Equal.class),
 					@Spec(path = "category.name", params = "keyword", spec = Like.class) }) Specification<Post> postSpec) {
-		PostPagingResponse postPagingResponse = postService.getAllPosts(page, size, sortBy, postSpec);
-		return ResponseEntity.ok().body(postPagingResponse);
+		return postService.getAllPosts(page, size, sortBy, postSpec);
 	}
 
 	/**
@@ -111,8 +107,7 @@ public class PostController {
 	 */
 	@GetMapping("/api/posts/{id}")
 	public ResponseEntity<?> getOnePost(@PathVariable Long id) {
-		PostDetailResponse response = postService.getOnePost(id);
-		return ResponseEntity.ok().body(response);
+		return postService.getOnePost(id);
 	}
 
 	/**
@@ -124,8 +119,7 @@ public class PostController {
 	 */
 	@PutMapping("/api/posts/{id}")
 	public ResponseEntity<?> updateOnePost(@PathVariable Long id, @RequestBody PostRequest postRequest) {
-		PostDto dto = postService.updateOnePost(id, postRequest);
-		return ResponseEntity.ok().body(dto);
+		return postService.updateOnePost(id, postRequest);
 	}
 
 	/**
@@ -136,8 +130,7 @@ public class PostController {
 	 */
 	@PutMapping("/api/admin/posts/{id}")
 	public ResponseEntity<?> updateStatusPost(@PathVariable Long id, @RequestParam EPostStatus status) {
-		PostDto dto = postService.updateStatusPost(id, status);
-		return ResponseEntity.ok().body(dto);
+		return postService.updateStatusPost(id, status);
 	}
 
 	/**
@@ -148,7 +141,6 @@ public class PostController {
 	 */
 	@DeleteMapping("/api/posts/{id}")
 	public ResponseEntity<?> deleteOnePost(@PathVariable Long id) {
-		PostDto dto = postService.deleteOnePost(id);
-		return ResponseEntity.ok().body(dto);
+		return postService.deleteOnePost(id);
 	}
 }
