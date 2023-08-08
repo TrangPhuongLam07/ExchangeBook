@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
+import com.exchangeBook.ExchangeBook.payload.request.ResetPasswordRequest;
 import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
 import com.exchangeBook.ExchangeBook.security.jwt.JwtUtils;
@@ -102,9 +103,8 @@ public class AuthController {
 	 * @access
 	 */
 	@GetMapping("/forget-password/verify")
-	public ResponseEntity<?> verifyResetPasswordToken(@RequestParam String token,
-			@RequestParam("password") String newPassword) {
-		return authService.verifyResetPasswordToken(token, newPassword);
+	public ResponseEntity<?> verifyResetPasswordToken(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		return authService.verifyResetPasswordToken(resetPasswordRequest);
 	}
 
 	/**
@@ -125,8 +125,8 @@ public class AuthController {
 	 * @access Login required
 	 */
 	@PutMapping("/reset-password")
-	public ResponseEntity<?> resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword) {
-		return authService.resetPassword(currentPassword, newPassword);
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		return authService.resetPassword(resetPasswordRequest);
 	}
 
 	/**
