@@ -24,6 +24,7 @@ import com.exchangeBook.ExchangeBook.entity.Image;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
+import com.exchangeBook.ExchangeBook.payload.request.ResetPasswordRequest;
 import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.property.FileStorageProperties;
 import com.exchangeBook.ExchangeBook.repository.ConfirmationTokenRepository;
@@ -196,11 +197,11 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken, String newPassword) {
-		ForgetPasswordToken token = forgetPasswordTokenRepository.findByToken(resetPasswordToken);
+	public ResponseEntity<?> verifyResetPasswordToken(ResetPasswordRequest resetPasswordRequest) {
+		ForgetPasswordToken token = forgetPasswordTokenRepository.findByToken(resetPasswordRequest.getTokenOrCurrentPassword());
 		if (token != null && !token.isExpired()) {
 			User user = token.getUser();
-			user.setPassword(passwordEncoder.encode(newPassword));
+			user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
 			userRepository.save(user);
 			return ResponseEntity.ok().body(new MessageResponse("Reset password successfully!"));
 		}
@@ -234,7 +235,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public ResponseEntity<?> resetPassword(String currentPassword, String newPassword) {
+	public ResponseEntity<?> resetPassword(ResetPasswordRequest resetPasswordRequest) {
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		String userEmail = "";
 		if (principal.toString() != "anonymousUser") {
@@ -242,8 +243,8 @@ public class AuthServiceImpl implements AuthService {
 		}
 		User user = userRepository.findByEmail(userEmail).get();
 
-		if (passwordEncoder.matches(currentPassword, user.getPassword())) {
-			user.setPassword(passwordEncoder.encode(newPassword));
+		if (passwordEncoder.matches(resetPasswordRequest.getTokenOrCurrentPassword(), user.getPassword())) {
+			user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
 			userRepository.save(user);
 			return ResponseEntity.ok().body(new MessageResponse("Reset password successfully!"));
 		}
