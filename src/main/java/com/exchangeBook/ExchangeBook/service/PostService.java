@@ -1,26 +1,30 @@
 package com.exchangeBook.ExchangeBook.service;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 
-import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.EPostStatus;
 import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
-import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
-import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 
 public interface PostService {
 
-	PostDto createNewPost(PostRequest postRequest);
+	ResponseEntity<?> createNewPost(PostRequest postRequest);
 
-	PostPagingResponse getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec);
+	ResponseEntity<?> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec);
 
-	PostDetailResponse getOnePost(Long id);
+	ResponseEntity<?> getOnePost(Long id);
 
+<<<<<<< HEAD
 	PostDto updateOnePost(Long id, PostRequest postRequest);
 
 	PostDto updateStatusPost(Long id, EPostStatus status);
+=======
+	ResponseEntity<?> updateOnePost(Long id, PostRequest postRequest);
+	
+	ResponseEntity<?> updateStatusPost(Long id, EPostStatus status);
+>>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 
-	PostDto deleteOnePost(Long id);
+	ResponseEntity<?> deleteOnePost(Long id);
 
 }

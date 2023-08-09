@@ -9,6 +9,9 @@ import com.exchangeBook.ExchangeBook.entity.Address;
 public class AddressMapper {
 
 	public AddressDto toAddressDto(Address address) {
+		if (address == null) {
+			return null;
+		}
 		AddressDto addressDto = AddressDto.builder().province(address.getProvince()).district(address.getDistrict())
 				.ward(address.getDistrict()).detail(address.getDistrict()).build();
 		return addressDto;

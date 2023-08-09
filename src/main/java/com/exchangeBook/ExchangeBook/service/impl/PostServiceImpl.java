@@ -5,12 +5,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,12 +26,14 @@ import com.exchangeBook.ExchangeBook.entity.Post;
 import com.exchangeBook.ExchangeBook.entity.User;
 import com.exchangeBook.ExchangeBook.mapper.PostMapper;
 import com.exchangeBook.ExchangeBook.payload.request.PostRequest;
+import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostDetailResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostPagingResponse;
 import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 import com.exchangeBook.ExchangeBook.repository.PostRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
+import com.exchangeBook.ExchangeBook.security.AuthRequestFilter;
 import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 import com.exchangeBook.ExchangeBook.service.PostService;
@@ -50,119 +55,147 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	PostMapper postMapper;
+	
+	private static final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
 
 	@Override
-	public PostDto createNewPost(PostRequest postRequest) {
+	public ResponseEntity<?> createNewPost(PostRequest postRequest) {
 		User user = null;
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Object principal = authentication.getPrincipal();
-		if (principal.toString() != "anonymousUser") {
-			UserDetailsImpl userDetail = (UserDetailsImpl) principal;
-			user = userRepository.findById(userDetail.getId()).get();
+		if (principal.toString() == "anonymousUser") {
+			return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized"));
+
 		}
+<<<<<<< HEAD
 
 		Category category = categoryRepository.findById(postRequest.getCategory()).get();
+=======
+>>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 
-		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
+		UserDetailsImpl userDetail = (UserDetailsImpl) principal;
+		user = userRepository.findById(userDetail.getId()).get();
 
-		String strMaxDatetime = "9999-12-31 23:59:59.999999";
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
-		LocalDateTime maxDateTime = LocalDateTime.parse(strMaxDatetime, formatter);
+		try {
+			Category category = categoryRepository.findById(postRequest.getCategory()).get();
 
-		Post post = new Post();
-		post.setTitle(postRequest.getTitle());
-		post.setAuthor(postRequest.getAuthor());
-		post.setDescription(postRequest.getDescription());
-		post.setStatus(EPostStatus.CREATE_PENDING);
-		post.setDateCreated(LocalDateTime.now());
-		post.setDateUpdated(LocalDateTime.now());
-		post.setDatePosted(maxDateTime);
-		post.setCategory(category);
-		post.setImages(imageList);
-		post.setUser(user);
-		PostDto createdPost = postMapper.toPostDto(postRepository.save(post));
+			List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
 
-		return createdPost;
+			String strMaxDatetime = "9999-12-31 23:59:59.999999";
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+			LocalDateTime maxDateTime = LocalDateTime.parse(strMaxDatetime, formatter);
+
+			Post post = new Post();
+			post.setTitle(postRequest.getTitle());
+			post.setAuthor(postRequest.getAuthor());
+			post.setDescription(postRequest.getDescription());
+			post.setStatus(EPostStatus.CREATE_PENDING);
+			post.setDateCreated(LocalDateTime.now());
+			post.setDateUpdated(LocalDateTime.now());
+			post.setDatePosted(maxDateTime);
+			post.setCategory(category);
+			post.setImages(imageList);
+			post.setUser(user);
+			postRepository.save(post);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return ResponseEntity.internalServerError().body(new MessageResponse("Create new post failed!"));
+		}
+		return ResponseEntity.internalServerError().body(new MessageResponse("Create new post successfully!"));
 	}
 
 	@Override
-	public PostPagingResponse getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec) {
+	public ResponseEntity<?> getAllPosts(Integer page, Integer size, String sortBy, Specification<Post> spec) {
 		Pageable paging = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, sortBy));
 		Page<Post> paged = postRepository.findAll(spec, paging);
-
-		List<PostResponse> postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post))
-				.collect(Collectors.toList());
-
+		List<PostResponse> postsResponses = null;
+		try {
+			postsResponses = paged.stream().map(post -> postMapper.toPostsResponse(post)).collect(Collectors.toList());
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(new MessageResponse("Get all posts failed!"));
+		}
 		PostPagingResponse postPagingResponse = new PostPagingResponse();
 		postPagingResponse.setTotalItems(paged.getTotalElements());
 		postPagingResponse.setTotalPages(paged.getTotalPages());
 		postPagingResponse.setPostsResponses(postsResponses);
 
-		return postPagingResponse;
-
+		return ResponseEntity.ok().body(postPagingResponse);
 	}
 
 	@Override
-	public PostDetailResponse getOnePost(Long id) {
+	public ResponseEntity<?> getOnePost(Long id) {
 		Post post = postRepository.findById(id).get();
+		PostDetailResponse postResponse = null;
+		try {
+			postResponse = postMapper.toPostDetailResponse(post);
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(new MessageResponse("Get post failed!"));
+		}
 
-		PostDetailResponse postResponse = postMapper.toPostDetailResponse(post);
-		return postResponse;
+		return ResponseEntity.ok().body(postResponse);
 	}
 
 	@Override
-	public PostDto updateOnePost(Long id, PostRequest postRequest) {
+	public ResponseEntity<?> updateOnePost(Long id, PostRequest postRequest) {
 		Post post = postRepository.findById(id).get();
 
 		User user = userRepository.findById(post.getUser().getId()).get();
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Object principal = authentication.getPrincipal();
-		if (((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
-			return null;
+		if (!((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
+			return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized"));
 		}
 
-		List<Image> oldImages = post.getImages();
-		oldImages.forEach(image -> imageService.deleteImage(image.getId()));
+		try {
+			List<Image> oldImages = post.getImages();
+			oldImages.forEach(image -> imageService.deleteImage(image.getId()));
 
-		Category category = categoryRepository.findById(postRequest.getCategory()).get();
-		List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
+			Category category = categoryRepository.findById(postRequest.getCategory()).get();
+			List<Image> imageList = imageService.uploadMultiImage(postRequest.getBase64Images());
 
-		post.setTitle(postRequest.getTitle());
-		post.setAuthor(postRequest.getAuthor());
-		post.setDescription(postRequest.getDescription());
-		post.setStatus(EPostStatus.UPDATE_PENDING);
-		post.setDateUpdated(LocalDateTime.now());
-		post.setCategory(category);
-		post.setImages(imageList);
-		PostDto updatedPost = postMapper.toPostDto(postRepository.save(post));
+			post.setTitle(postRequest.getTitle());
+			post.setAuthor(postRequest.getAuthor());
+			post.setDescription(postRequest.getDescription());
+			post.setStatus(EPostStatus.UPDATE_PENDING);
+			post.setDateUpdated(LocalDateTime.now());
+			post.setCategory(category);
+			post.setImages(imageList);
+			postRepository.save(post);
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body(new MessageResponse("Update post failed!"));
+		}
 
-		return updatedPost;
+		return ResponseEntity.ok().body(new MessageResponse("Update post successfully!"));
 	}
 
 	@Override
-	public PostDto updateStatusPost(Long id, EPostStatus status) {
+	public ResponseEntity<?> updateStatusPost(Long id, EPostStatus status) {
 		Post post = postRepository.findById(id).get();
+		if (status.equals(EPostStatus.APPROVED)) {
+			User user = post.getUser();
+			user.setPoint(user.getPoint() + 1);
+			userRepository.save(user);
+		}
 		post.setStatus(status);
-		return postMapper.toPostDto(post);
+		postRepository.save(post);
+		return ResponseEntity.ok().body(new MessageResponse("Update post successfully!"));
 	}
 
 	@Override
-	public PostDto deleteOnePost(Long id) {
+	public ResponseEntity<?> deleteOnePost(Long id) {
 		Post post = postRepository.findById(id).get();
 
 		User user = post.getUser();
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Object principal = authentication.getPrincipal();
-		if (((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
-			return null;
+		if (!((UserDetailsImpl) principal).getEmail().equals(user.getEmail())) {
+			return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized!"));
 		}
-
 		post.setStatus(EPostStatus.HIDDEN);
+		postRepository.save(post);
 
-		PostDto deletedPost = postMapper.toPostDto(postRepository.save(post));
-
-		return deletedPost;
+		return ResponseEntity.ok().body(new MessageResponse("Delete post successfully!"));
 	}
 }

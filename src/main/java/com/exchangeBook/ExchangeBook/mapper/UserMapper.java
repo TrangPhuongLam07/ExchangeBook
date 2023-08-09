@@ -48,11 +48,11 @@ public class UserMapper {
 	public UserResponse toUserResponse(User user) {
 
 		Optional<ImageDto> avatar = Optional.ofNullable(imageMapper.toImageDto(user.getAvatar()));
-		Optional<AddressDto> address = Optional.ofNullable(addressMapper.toAddressDto(user.getAddress()));
+		AddressDto address = addressMapper.toAddressDto(user.getAddress());
 
 		UserResponse usersResponse = UserResponse.builder().id(user.getId()).email(user.getEmail())
 				.firstName(user.getFirstName()).lastName(user.getLastName()).phoneNumber(user.getPhoneNumber())
-				.role(user.getRole().toString()).avatar(avatar.get()).address(address.get()).build();
+				.role(user.getRole().toString()).avatar(avatar.get()).address(address).build();
 		return usersResponse;
 	}
 }

@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
+import com.exchangeBook.ExchangeBook.payload.request.ResetPasswordRequest;
 
 public interface AuthService {
 
@@ -19,8 +20,8 @@ public interface AuthService {
 	
 	ResponseEntity<?> resendForgetPasswordToken(String email);
 
-	ResponseEntity<?> verifyResetPasswordToken(String resetPasswordToken, String newPassword);
+	ResponseEntity<?> verifyResetPasswordToken(ResetPasswordRequest resetPasswordRequest);
 
-	ResponseEntity<?> resetPassword(String currentPassword, String newPassword);
+	ResponseEntity<?> resetPassword(ResetPasswordRequest resetPasswordRequest);
 
 }

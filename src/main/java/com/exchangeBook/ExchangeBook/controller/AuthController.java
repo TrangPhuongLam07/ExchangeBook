@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.exchangeBook.ExchangeBook.payload.request.LoginRequest;
 import com.exchangeBook.ExchangeBook.payload.request.RegisterRequest;
+import com.exchangeBook.ExchangeBook.payload.request.ResetPasswordRequest;
 import com.exchangeBook.ExchangeBook.payload.response.MessageResponse;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
 import com.exchangeBook.ExchangeBook.security.jwt.JwtUtils;
@@ -84,36 +85,35 @@ public class AuthController {
 	}
 
 	/**
-	 * @route PUT /api/auth/forget-password?email=abc@gmail.com
+	 * @route POST /api/auth/forget-password?email=abc@gmail.com
 	 * @description Send a resetting password token in an email to user
 	 * @param {email}
 	 * @access
 	 */
-	@PutMapping("/forget-password")
+	@PostMapping("/forget-password")
 	public ResponseEntity<?> sendResetPasswordToken(@RequestParam(name = "email") String userEmail) {
 		return authService.sendForgetPasswordToken(userEmail);
 	}
 
 	/**
-	 * @route GET /api/auth/forget-password/verify?token=abc123&password=xyz789
+	 * @route PUT /api/auth/forget-password/verify?token=abc123&password=xyz789
 	 * @description User sends a resetting password token and new password to the
 	 *              server to verify and update new password if the token is valid
 	 * @param {token, password}
 	 * @access
 	 */
-	@GetMapping("/forget-password/verify")
-	public ResponseEntity<?> verifyResetPasswordToken(@RequestParam String token,
-			@RequestParam("password") String newPassword) {
-		return authService.verifyResetPasswordToken(token, newPassword);
+	@PutMapping("/forget-password/verify")
+	public ResponseEntity<?> verifyResetPasswordToken(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		return authService.verifyResetPasswordToken(resetPasswordRequest);
 	}
 
 	/**
-	 * @route GET /api/auth/forget-password/resend-token?email=abc@gmail.com
+	 * @route PUT /api/auth/forget-password/resend-token?email=abc@gmail.com
 	 * @description Resend email including a resetting password token link
 	 * @param {email}
 	 * @access
 	 */
-	@GetMapping("/forget-password/resend-token")
+	@PutMapping("/forget-password/resend-token")
 	public ResponseEntity<?> resendResetPasswordToken(@RequestParam(name = "email") String userEmail) {
 		return authService.resendForgetPasswordToken(userEmail);
 	}
@@ -125,8 +125,8 @@ public class AuthController {
 	 * @access Login required
 	 */
 	@PutMapping("/reset-password")
-	public ResponseEntity<?> resetPassword(@RequestParam String currentPassword, @RequestParam String newPassword) {
-		return authService.resetPassword(currentPassword, newPassword);
+	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+		return authService.resetPassword(resetPasswordRequest);
 	}
 
 	/**
