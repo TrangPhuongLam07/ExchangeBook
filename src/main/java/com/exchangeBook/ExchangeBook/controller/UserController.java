@@ -96,12 +96,7 @@ public class UserController {
 	@GetMapping("/api/users/{id}/posts")
 	public ResponseEntity<?> getOneUserPosts(@PathVariable Long id, @RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "dateCreated") String sort) {
-<<<<<<< HEAD
-		PostPagingResponse userResponse = userService.getOneUserPosts(id, page, size, sort);
-		return ResponseEntity.ok().body(userResponse);
-=======
 		return userService.getOneUserPosts(id, page, size, sort);
->>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 	}
 
 	/**

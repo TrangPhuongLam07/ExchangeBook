@@ -10,10 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-<<<<<<< HEAD
-=======
 import org.springframework.http.ResponseEntity;
->>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

@@ -74,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
 		this.rootLocation = Paths.get(properties.getUploadDir());
 	}
 
-	private final String DEFAULT_AVATAR_NAME = "default_user_avatar.png";
+	private final String DEFAULT_AVATAR_NAME = "default_user_avatar.jpg";
 
 	@Override
 	public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
@@ -198,7 +198,8 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public ResponseEntity<?> verifyResetPasswordToken(ResetPasswordRequest resetPasswordRequest) {
-		ForgetPasswordToken token = forgetPasswordTokenRepository.findByToken(resetPasswordRequest.getTokenOrCurrentPassword());
+		ForgetPasswordToken token = forgetPasswordTokenRepository
+				.findByToken(resetPasswordRequest.getTokenOrCurrentPassword());
 		if (token != null && !token.isExpired()) {
 			User user = token.getUser();
 			user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));

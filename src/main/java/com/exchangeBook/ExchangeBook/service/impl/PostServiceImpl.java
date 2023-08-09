@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.exchangeBook.ExchangeBook.dto.PostDto;
 import com.exchangeBook.ExchangeBook.entity.Category;
 import com.exchangeBook.ExchangeBook.entity.EPostStatus;
 import com.exchangeBook.ExchangeBook.entity.Image;
@@ -33,7 +32,6 @@ import com.exchangeBook.ExchangeBook.payload.response.PostResponse;
 import com.exchangeBook.ExchangeBook.repository.CategoryRepository;
 import com.exchangeBook.ExchangeBook.repository.PostRepository;
 import com.exchangeBook.ExchangeBook.repository.UserRepository;
-import com.exchangeBook.ExchangeBook.security.AuthRequestFilter;
 import com.exchangeBook.ExchangeBook.security.service.UserDetailsImpl;
 import com.exchangeBook.ExchangeBook.service.ImageService;
 import com.exchangeBook.ExchangeBook.service.PostService;
@@ -55,7 +53,7 @@ public class PostServiceImpl implements PostService {
 
 	@Autowired
 	PostMapper postMapper;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
 
 	@Override
@@ -67,11 +65,8 @@ public class PostServiceImpl implements PostService {
 			return ResponseEntity.badRequest().body(new MessageResponse("Unauthorized"));
 
 		}
-<<<<<<< HEAD
 
-		Category category = categoryRepository.findById(postRequest.getCategory()).get();
-=======
->>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
+//		Category category = categoryRepository.findById(postRequest.getCategory()).get();
 
 		UserDetailsImpl userDetail = (UserDetailsImpl) principal;
 		user = userRepository.findById(userDetail.getId()).get();

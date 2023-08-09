@@ -9,24 +9,7 @@ import com.exchangeBook.ExchangeBook.payload.request.UserRequest;
 
 public interface UserService {
 
-<<<<<<< HEAD
-	UserPagingResponse getAllUsers(Integer page, Integer size);
-
-	PostPagingResponse getCurrentUserPosts(Integer page, Integer size, String sortBy, EPostStatus status);
-
-	PostPagingResponse getOneUserPosts(Long id, Integer page, Integer size, String sortBy);
-
-	UserDetailResponse getCurrentUser();
-
-	UserDetailResponse getOneUser(Long id);
-
-	UserResponse updateOneUser(Long id, ERole role, EUserStatus status);
-
-	UserResponse updateCurrentUser(UserRequest userRequest);
-
-	UserResponse deleteOneUser(Long id);
-
-=======
+//	UserPagingResponse getAllUsers(Integer page, Integer size);
 	ResponseEntity<?> getAllUsers(Integer page, Integer size);
 
 	ResponseEntity<?> getCurrentUserPosts(Integer page, Integer size, String sortBy, EPostStatus status);
@@ -43,7 +26,6 @@ public interface UserService {
 
 	ResponseEntity<?> deleteOneUser(Long id);
 
->>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 	boolean checkPoint();
 
 	int returnPoint();

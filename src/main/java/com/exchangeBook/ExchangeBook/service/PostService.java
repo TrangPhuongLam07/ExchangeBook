@@ -15,15 +15,9 @@ public interface PostService {
 
 	ResponseEntity<?> getOnePost(Long id);
 
-<<<<<<< HEAD
-	PostDto updateOnePost(Long id, PostRequest postRequest);
-
-	PostDto updateStatusPost(Long id, EPostStatus status);
-=======
 	ResponseEntity<?> updateOnePost(Long id, PostRequest postRequest);
-	
+
 	ResponseEntity<?> updateStatusPost(Long id, EPostStatus status);
->>>>>>> ca46d9956859d6ed82fcf000d6f659662508f924
 
 	ResponseEntity<?> deleteOnePost(Long id);
 
