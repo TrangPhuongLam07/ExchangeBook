@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 
-@CrossOrigin
 @RestController
 
 public class ExchangeController {

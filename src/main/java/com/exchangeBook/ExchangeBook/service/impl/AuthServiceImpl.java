@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	ImageService imageService;
-	
+
 	@Autowired
 	EmailSenderService emailSenderService;
 
