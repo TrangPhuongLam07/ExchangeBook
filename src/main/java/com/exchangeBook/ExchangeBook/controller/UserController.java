@@ -22,7 +22,6 @@ import com.exchangeBook.ExchangeBook.payload.response.UserResponse;
 import com.exchangeBook.ExchangeBook.service.UserService;
 
 @RestController
-//@RequestMapping("/api/users")
 public class UserController {
 
 	@Autowired

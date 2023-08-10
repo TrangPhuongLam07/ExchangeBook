@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -96,7 +98,7 @@ public class PostServiceImpl implements PostService {
 			logger.error(e.getMessage());
 			return ResponseEntity.internalServerError().body(new MessageResponse("Create new post failed!"));
 		}
-		return ResponseEntity.internalServerError().body(new MessageResponse("Create new post successfully!"));
+		return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("Create new post successfully!"));
 	}
 
 	@Override
